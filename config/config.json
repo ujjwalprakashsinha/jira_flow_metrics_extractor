@@ -1,0 +1,5 @@
+{
+    "jira_url": "https://jira.sixt.com",
+    "jira_token_env_varname": "jira_token",
+    "output_date_format": "yyyymmdd"
+}

@@ -1,0 +1,51 @@
+{
+    "queries": [
+      {
+        "name": "PRAU Standard",
+        "query_text": "project= PRAU and issuetype in standardIssueTypes() and issuetype != Epic",
+        "board_id": 12819
+      },
+      {
+        "name": "Jira Admin",
+        "query_text": "project = 'JIRA Administration' AND issuetype not in (Epic, Program, subTaskIssueTypes())",
+        "board_id": 3
+      },
+      {
+        "name": "Yield YSYS",
+        "query_text": "(project = YIELD OR project = YDP AND issueFunction in epicsOf('project=YIELD')) AND  issuetype not in (Test, Epic, subTaskIssueTypes())",
+        "active": false,
+        "board_id": 3792
+      },
+      {
+        "name": "IDA",
+        "query_text": "project = IDA AND (status = Backlog AND issuetype not in (Program, Epic) OR status != Backlog)",
+        "board_id": 12945
+      },
+      {
+        "name": "PRAU Epics",
+        "query_text": "project= PRAU and issuetype = Epic",
+        "columns": [
+          {
+            "column_name": "Backlog",
+            "statuses": ["Icebox"]
+          },
+          {
+            "column_name": "To Do",
+            "statuses": ["To Do"]
+          },
+          {
+            "column_name": "In Progress",
+            "statuses": ["In Progress"]
+          },
+          {
+            "column_name":"Blocked",
+            "statuses":["Blocked"]
+          },
+          {
+            "column_name":"Done",
+            "statuses":["Done", "Won't Fix"]
+          }
+        ]
+      }
+    ]
+  }
