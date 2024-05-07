@@ -35,9 +35,8 @@ class JiraDataBase:
 
     
     def set_board_column_value(self, mapped_column_for_status, status_change_date):
-        if mapped_column_for_status == '' or mapped_column_for_status is None:
-            return
-        self.csv_single_row_list[mapped_column_for_status] = status_change_date
+        if not mapped_column_for_status:
+            self.csv_single_row_list[mapped_column_for_status] = status_change_date
 
     def set_row_values_to_blank(self):
         for columns in self.csv_single_row_list:
@@ -45,11 +44,15 @@ class JiraDataBase:
     
     def get_mapped_column_for_status(self, current_status: str) -> str:
         mapped_column: str = ''
+        loop_breaker = False
         for column in self.jira_board_columns:
             for status in column[JiraJsonKeyConst.STATUSES.value]:
                 if status.casefold() == current_status.casefold():
                     mapped_column = column[JiraJsonKeyConst.COLUMN_NAME.value]
-                    return mapped_column
+                    loop_breaker = True
+                    break
+            if loop_breaker:
+                break
         return mapped_column
 
     def get_first_column_having_mapped_status(self):
