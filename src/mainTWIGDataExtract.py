@@ -1,5 +1,6 @@
 import csv
 from datetime import datetime
+
 from jira import JIRA
 import os
 import sys
@@ -92,7 +93,7 @@ try:
     else:
         columns = obj_query[JiraJsonKeyConst.COLUMNS.value]
     output_file_name = obj_query[JiraJsonKeyConst.NAME.value] + FileFolderNameConst.OUTPUT_FILE_POSTFIX.value
-    obj_jira_data = JiraDataBase(search_query=obj_query[JiraJsonKeyConst.QUERY_TEXT.value], columns=columns,
+    obj_jira_data = JiraDataBase(search_query=obj_query[JiraJsonKeyConst.QUERY_TEXT.value], jira_board_columns=columns,
                                  output_file_name=output_file_name)
 
     print(f'Please wait, we are preparing data for "{query_name}"')
@@ -101,8 +102,25 @@ try:
                 token_auth=jira_token)  # connection to the jira
 
     search_query = obj_jira_data.search_query  # the search query
+    jira_fields_needed = ["status", "created"]
+    max_results = 1000 # Maximum results per request (set to JIra's limit)
+    all_jira_issues = [] # List to store retrieved issues
+    start_at = 0 # Initial starting point for pagination
+    while True:
+        # Define JQL options with specified fields
+        
+        jql_options = {"fields": jira_fields_needed}
+        jira_issues = jira.search_issues(jql_str=search_query, startAt=start_at,  maxResults=max_results, fields=jira_fields_needed, expand="changelog")
+        # Add retrieved issues to the list
+        all_jira_issues.extend(jira_issues)
+        # print(f"Total Issue count: {jira_issues.total}")
+        # Check for more pages
+        if len(jira_issues) < max_results:
+            break
 
-    issues = jira.search_issues(search_query, maxResults=1000, expand='changelog')
+        # Update starting point for next iteration
+        start_at += max_results
+
     print('Data extracted from Jira...')
     output_folder_path = get_output_folder_path()
     os.makedirs(name=output_folder_path, exist_ok=True)
@@ -111,15 +129,15 @@ try:
         csv_writer = csv.writer(csvfile)
         header = obj_jira_data.csv_row_list.keys()
         csv_writer.writerow(header)
-        for issue in issues:
+        for jira_issue in all_jira_issues:
             obj_jira_data.set_row_values_to_blank()
             # assign created date as the value for first column which has mapped status
             # (exclude columns with no mapped status on jira board like backlog in Kanban board sometime)
-            obj_jira_data.csv_row_list[obj_jira_data.get_first_column_having_mapped_status()] = issue.fields.created
-            obj_jira_data.set_issue_id(issue.key)
+            obj_jira_data.csv_row_list[obj_jira_data.get_first_column_having_mapped_status()] = jira_issue.fields.created
+            obj_jira_data.set_issue_id(jira_issue.key)
             mapped_Column_final_issue_status = obj_jira_data.get_mapped_column_for_status(
-                current_status=issue.fields.status.name)
-            for history in issue.changelog.histories:
+                current_status=jira_issue.fields.status.name)
+            for history in jira_issue.changelog.histories:
                 for item in history.items:
                     if item.field == "status":  # checking for status change in the history
                         mapped_Column_current_issue_status = obj_jira_data.get_mapped_column_for_status(
@@ -132,15 +150,15 @@ try:
             obj_jira_data.clear_later_workflow_column_value(mapped_Column_final_issue_status)
             # add the change date (needed format) to the csv_row_list object and add to csv
             date_utility = DateUtil(config[ConfigKeyConst.OUTPUT_DATE_FORMAT_KEY.value])
-            for column in obj_jira_data.columns:
+            for column in obj_jira_data.jira_board_columns:
                 obj_jira_data.csv_row_list[column[JiraJsonKeyConst.COLUMN_NAME.value]] = date_utility.convert_jira_date(
                     obj_jira_data.csv_row_list[column[JiraJsonKeyConst.COLUMN_NAME.value]])
 
             csv_writer.writerow(obj_jira_data.csv_row_list.values())
     print('\n')
-    print(f"Issues fetched: {issues.total} records")
-    if issues.total > 1000:
-        print('WARNING: This code only fetches top 1000 records returned by the query')
+    print(f"Issues fetched: {len(all_jira_issues)} records")
+    # if jira_issues.total > 1000:
+    #     print('WARNING: This code only fetches top 1000 records returned by the query')
     print(f'CSV file {output_csv_file_fullpath} created...' + ' ' + str(datetime.now()))
 except Exception as e:
     print(f"Error : {e}")
