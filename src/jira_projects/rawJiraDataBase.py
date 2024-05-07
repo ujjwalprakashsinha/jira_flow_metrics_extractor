@@ -35,7 +35,7 @@ class JiraDataBase:
 
     
     def set_board_column_value(self, mapped_column_for_status, status_change_date):
-        if not mapped_column_for_status:
+        if mapped_column_for_status:
             self.csv_single_row_list[mapped_column_for_status] = status_change_date
 
     def set_row_values_to_blank(self):
