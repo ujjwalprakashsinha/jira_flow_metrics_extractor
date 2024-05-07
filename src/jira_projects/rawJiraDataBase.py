@@ -8,7 +8,7 @@ class JiraDataBase:
         self.file_name: str = output_file_name
         self.search_query: str = search_query
         self.jira_board_columns = jira_board_columns
-        self.csv_row_list = {
+        self.csv_single_row_list = {
             JiraDataBase._idColumnName: 0
         }
 
@@ -19,40 +19,37 @@ class JiraDataBase:
                 self.jira_board_columns.remove(column)
 
         for column in self.jira_board_columns:
-            self.csv_row_list[column[JiraJsonKeyConst.COLUMN_NAME.value]] = ''
+            self.csv_single_row_list[column[JiraJsonKeyConst.COLUMN_NAME.value]] = ''
 
     def clear_later_workflow_column_value(self, mapped_column_for_status):
         found: bool = False
-        for value in self.csv_row_list:
+        for value in self.csv_single_row_list:
             if value == mapped_column_for_status:
                 found = True
                 continue
             if found:
-                self.csv_row_list[value] = ''
-
-    def set_column_value(self, mapped_column_for_status, created):
-        if mapped_column_for_status == '' or mapped_column_for_status is None:
-            print(
-                f'mapping not found for Issue ID: {self.csv_row_list[JiraDataBase._idColumnName]} status changed on {created}')
-            return
-        self.csv_row_list[mapped_column_for_status] = created
-
-    def set_row_values_to_blank(self):
-        for columns in self.csv_row_list:
-            self.csv_row_list[columns] = ''
+                self.csv_single_row_list[value] = ''
 
     def set_issue_id(self, issue_id):
-        self.csv_row_list[JiraDataBase._idColumnName] = issue_id
+        self.csv_single_row_list[JiraDataBase._idColumnName] = issue_id
 
-    def get_mapped_column_for_status(self, current_status):
+    
+    def set_board_column_value(self, mapped_column_for_status, status_change_date):
+        if mapped_column_for_status == '' or mapped_column_for_status is None:
+            return
+        self.csv_single_row_list[mapped_column_for_status] = status_change_date
+
+    def set_row_values_to_blank(self):
+        for columns in self.csv_single_row_list:
+            self.csv_single_row_list[columns] = ''
+    
+    def get_mapped_column_for_status(self, current_status: str) -> str:
         mapped_column: str = ''
         for column in self.jira_board_columns:
             for status in column[JiraJsonKeyConst.STATUSES.value]:
                 if status.casefold() == current_status.casefold():
                     mapped_column = column[JiraJsonKeyConst.COLUMN_NAME.value]
                     return mapped_column
-        if mapped_column == '':
-            print(f'INFO: No mapped Column found for status {current_status}, hence status ignored..')
         return mapped_column
 
     def get_first_column_having_mapped_status(self):

@@ -81,7 +81,7 @@ try:
     query_name = input('Write name of a Query to execute (from the above list): ')
     obj_query = get_jira_query_by_name(name_of_query=query_name)
     if obj_query is None:
-        print('!!! Invalid Query Name provided !!!')
+        print('!!! Invalid Query Name provided. Exiting code !!!')
         sys.exit()
 
     cred_manager = CredentialManager()
@@ -96,7 +96,7 @@ try:
     obj_jira_data = JiraDataBase(search_query=obj_query[JiraJsonKeyConst.QUERY_TEXT.value], jira_board_columns=columns,
                                  output_file_name=output_file_name)
 
-    print(f'Please wait, we are preparing data for "{query_name}"')
+    print(f'Please wait, we are preparing data for "{obj_query[JiraJsonKeyConst.NAME.value]}"')
 
     jira = JIRA(options={'server': config[ConfigKeyConst.JIRA_URL_KEY.value]},
                 token_auth=jira_token)  # connection to the jira
@@ -127,34 +127,38 @@ try:
     output_csv_file_fullpath = os.path.join(output_folder_path, obj_jira_data.file_name)
     with open(output_csv_file_fullpath, 'w', newline='') as csvfile:
         csv_writer = csv.writer(csvfile)
-        header = obj_jira_data.csv_row_list.keys()
+        header = obj_jira_data.csv_single_row_list.keys()
         csv_writer.writerow(header)
         for jira_issue in all_jira_issues:
             obj_jira_data.set_row_values_to_blank()
             # assign created date as the value for first column which has mapped status
             # (exclude columns with no mapped status on jira board like backlog in Kanban board sometime)
-            obj_jira_data.csv_row_list[obj_jira_data.get_first_column_having_mapped_status()] = jira_issue.fields.created
+            obj_jira_data.csv_single_row_list[obj_jira_data.get_first_column_having_mapped_status()] = jira_issue.fields.created
             obj_jira_data.set_issue_id(jira_issue.key)
-            mapped_Column_final_issue_status = obj_jira_data.get_mapped_column_for_status(
+            mapped_column_final_issue_status = obj_jira_data.get_mapped_column_for_status(
                 current_status=jira_issue.fields.status.name)
             for history in jira_issue.changelog.histories:
                 for item in history.items:
                     if item.field == "status":  # checking for status change in the history
-                        mapped_Column_current_issue_status = obj_jira_data.get_mapped_column_for_status(
+                        mapped_column_current_issue_status = obj_jira_data.get_mapped_column_for_status(
                             current_status=item.toString)
-                        obj_jira_data.set_column_value(mapped_column_for_status=mapped_Column_current_issue_status,
-                                                       created=history.created)
-                        obj_jira_data.clear_later_workflow_column_value(
-                            mapped_column_for_status=mapped_Column_current_issue_status)
+                        if mapped_column_current_issue_status == '' or mapped_column_current_issue_status is None:
+                            print(f'Info: Status mapping missing for: {item.toString} | Issue ID: {obj_jira_data.csv_single_row_list[JiraDataBase._idColumnName]} | Change Date: {history.created}')
+                            break
 
-            obj_jira_data.clear_later_workflow_column_value(mapped_Column_final_issue_status)
+                        obj_jira_data.set_board_column_value(mapped_column_for_status=mapped_column_current_issue_status,
+                                                       status_change_date=history.created)
+                        obj_jira_data.clear_later_workflow_column_value(
+                            mapped_column_for_status=mapped_column_current_issue_status)
+
+            obj_jira_data.clear_later_workflow_column_value(mapped_column_final_issue_status)
             # add the change date (needed format) to the csv_row_list object and add to csv
             date_utility = DateUtil(config[ConfigKeyConst.OUTPUT_DATE_FORMAT_KEY.value])
             for column in obj_jira_data.jira_board_columns:
-                obj_jira_data.csv_row_list[column[JiraJsonKeyConst.COLUMN_NAME.value]] = date_utility.convert_jira_date(
-                    obj_jira_data.csv_row_list[column[JiraJsonKeyConst.COLUMN_NAME.value]])
+                obj_jira_data.csv_single_row_list[column[JiraJsonKeyConst.COLUMN_NAME.value]] = date_utility.convert_jira_date(
+                    obj_jira_data.csv_single_row_list[column[JiraJsonKeyConst.COLUMN_NAME.value]])
 
-            csv_writer.writerow(obj_jira_data.csv_row_list.values())
+            csv_writer.writerow(obj_jira_data.csv_single_row_list.values())
     print('\n')
     print(f"Issues fetched: {len(all_jira_issues)} records")
     # if jira_issues.total > 1000:
