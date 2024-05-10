@@ -20,7 +20,7 @@
    - Windows
      - .....
 
-## Configurations:
+## Configurations
 1. Configuration Setting for this project
 
     File : `config/config.json`
