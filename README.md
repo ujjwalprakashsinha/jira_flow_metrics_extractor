@@ -46,15 +46,15 @@
     File: `config/projectQueriesConfig.json`
 ```
    {
-    "queries": [
+    "boards": [
       {
         "name": "PRAU Standard",
-        "query_text": "project= PRAU and issuetype in standardIssueTypes() and issuetype != Epic",
+        "jql": "project= PRAU and issuetype in standardIssueTypes() and issuetype != Epic",
         "board_id": 12819
       },
       {
         "name": "Jira Admin",
-        "query_text": "project = 'JIRA Administration' AND issuetype not in (Epic, Program, subTaskIssueTypes())",
+        "jql": "project = 'JIRA Administration' AND issuetype not in (Epic, Program, subTaskIssueTypes())",
         "board_id": 3
       }
     ]
@@ -63,7 +63,7 @@
 
    - `name` => Short name for the board configured. This will appear when you execute code as one of the options
 
-   - `query_text` => the jira JQL which needs to be run for fetching the data.
+   - `jql` => the jira JQL which needs to be run for fetching the data.
         - - You can use the JQL for the jira board you wnat to configure but ensure that you modify the query to exclude the issue type which are needed for cycle time.
         - -  Please ensure that the JQL does not contain double quotes (") and are replaced by single quotes (')
    
