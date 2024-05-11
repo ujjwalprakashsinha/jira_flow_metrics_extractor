@@ -27,7 +27,7 @@ def get_output_folder_path() -> str:
 
 def get_all_active_jira_query_names():
     available_jira_queries = []
-    for query in project_queries_config[JiraJsonKeyConst.QUERIES.value]:
+    for query in project_queries_config[JiraJsonKeyConst.BOARDS.value]:
         if JiraJsonKeyConst.ACTIVE.value in query and not query[JiraJsonKeyConst.ACTIVE.value]:
             continue
         available_jira_queries.append(query[JiraJsonKeyConst.NAME.value])
@@ -35,7 +35,7 @@ def get_all_active_jira_query_names():
 
 
 def get_jira_query_by_name(name_of_query):
-    for query in project_queries_config[JiraJsonKeyConst.QUERIES.value]:
+    for query in project_queries_config[JiraJsonKeyConst.BOARDS.value]:
         if query[JiraJsonKeyConst.NAME.value].casefold() == name_of_query.casefold():
             return query
 
@@ -93,7 +93,7 @@ try:
     else:
         columns = obj_query[JiraJsonKeyConst.COLUMNS.value]
     output_file_name = obj_query[JiraJsonKeyConst.NAME.value] + FileFolderNameConst.OUTPUT_FILE_POSTFIX.value
-    obj_jira_data = JiraDataBase(search_query=obj_query[JiraJsonKeyConst.QUERY_TEXT.value], jira_board_columns=columns,
+    obj_jira_data = JiraDataBase(search_query=obj_query[JiraJsonKeyConst.JQL.value], jira_board_columns=columns,
                                  output_file_name=output_file_name)
 
     print(f'Please wait, we are preparing data for "{obj_query[JiraJsonKeyConst.NAME.value]}"')

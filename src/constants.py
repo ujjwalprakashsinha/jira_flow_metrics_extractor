@@ -2,9 +2,9 @@ from enum import Enum
 
 
 class JiraJsonKeyConstants(Enum):
-    QUERIES = "queries"
+    BOARDS = "boards"
     NAME = "name"
-    QUERY_TEXT = "query_text"
+    JQL = "jql"
     ACTIVE = "active"
     COLUMNS = "columns"
     COLUMN_NAME = "column_name"
