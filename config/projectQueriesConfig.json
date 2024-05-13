@@ -2,17 +2,17 @@
     "boards": [
       {
         "name": "PRAU Standard",
-        "jql": "project= PRAU and issuetype in standardIssueTypes() and issuetype != Epic",
+        "jql": "project= PRAU and issuetype not in (Epic, subTaskIssueTypes())",
         "board_id": 12819
       },
       {
         "name": "Jira Admin",
-        "jql": "project = 'JIRA Administration' AND issuetype not in (Epic, Program, subTaskIssueTypes())",
+        "jql": "project = 'JIRA Administration' and issuetype not in (Epic, Program, subTaskIssueTypes())",
         "board_id": 3
       },
       {
         "name": "Yield YSYS",
-        "jql": "(project = YIELD OR project = YDP AND issueFunction in epicsOf('project=YIELD')) AND  issuetype not in (Test, Epic, subTaskIssueTypes())",
+        "jql": "(project = YIELD OR project = YDP and issueFunction in epicsOf('project=YIELD')) and  issuetype not in (Test, Epic, subTaskIssueTypes())",
         "active": false,
         "board_id": 3792
       },
