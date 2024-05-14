@@ -11,6 +11,11 @@
         "board_id": 3
       },
       {
+        "name": "FADMIN",
+        "jql": "project= VS and issuetype not in (standardIssueTypes(), Epic, Test)",
+        "board_id": 9163
+      },
+      {
         "name": "Yield YSYS",
         "jql": "(project = YIELD OR project = YDP and issueFunction in epicsOf('project=YIELD')) and  issuetype not in (Test, Epic, subTaskIssueTypes())",
         "active": false,

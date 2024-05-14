@@ -15,11 +15,14 @@ class JiraDataBase:
         # Build the row_list using the columns array
         temp_columns = self.jira_board_columns.copy()
         for column in temp_columns:
-            if len(column[JiraJsonKeyConst.STATUSES.value]) == 0:
+            if JiraJsonKeyConst.STATUSES.value in column and len(column[JiraJsonKeyConst.STATUSES.value]) == 0:
                 self.jira_board_columns.remove(column)
 
         for column in self.jira_board_columns:
             self.csv_single_row_list[column[JiraJsonKeyConst.COLUMN_NAME.value]] = ''
+
+    def insert_additional_columns_to_csv(self, additional_column):
+        self.csv_single_row_list[additional_column[JiraJsonKeyConst.COLUMN_NAME.value]] = ''
 
     def clear_later_workflow_column_value(self, mapped_column_for_status):
         found: bool = False

@@ -20,7 +20,8 @@ class FileFolderNameConstants(Enum):
     PROJECT_QUERY_CONFIG_FILENAME = "projectQueriesConfig.json"
     CONFIG_FILENAME = "config.json"
     OUTPUT_FOLDERNAME = "outputFiles"
-    OUTPUT_FILE_POSTFIX = "_raw_jira_data.csv"
+    TWIG_OUTPUT_FILE_POSTFIX = "_twig_jira_data.csv"
+    COLUMN_OUTPUT_FILE_POSTFIX = "_column_jira_data.csv"
     CONFIG_FOLDERNAME = "config"
 
 

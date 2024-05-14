@@ -13,6 +13,7 @@ from jira_projects.rawJiraDataBase import JiraDataBase
 from constants import JiraJsonKeyConstants as JiraJsonKeyConst
 from constants import FileFolderNameConstants as FileFolderNameConst
 from constants import ConfigKeyConstants as ConfigKeyConst
+from constants import DateUtilConstants as DateUtilConst
 
 
 def get_config_folder_path() -> str:
@@ -92,9 +93,23 @@ try:
         columns = get_columns_array_by_board_id(board_id=int(obj_query["board_id"]))
     else:
         columns = obj_query[JiraJsonKeyConst.COLUMNS.value]
-    output_file_name = obj_query[JiraJsonKeyConst.NAME.value] + FileFolderNameConst.TWIG_OUTPUT_FILE_POSTFIX.value
+    
+
+    output_file_name = obj_query[JiraJsonKeyConst.NAME.value] + FileFolderNameConst.COLUMN_OUTPUT_FILE_POSTFIX.value
+
+    
+
     obj_jira_data = JiraDataBase(search_query=obj_query[JiraJsonKeyConst.JQL.value], jira_board_columns=columns,
                                  output_file_name=output_file_name)
+
+    # NEW CODE
+    additional_columns = ["status", "summary", "customfield_10002"] # customfield_10002 = Story Points
+   
+    for add_col in additional_columns:
+        obj_dict = {}
+        obj_dict[JiraJsonKeyConst.COLUMN_NAME.value] = add_col
+        obj_jira_data.insert_additional_columns_to_csv(obj_dict)
+    # --------
 
     print(f'Please wait, we are preparing data for "{obj_query[JiraJsonKeyConst.NAME.value]}"')
 
@@ -102,7 +117,8 @@ try:
                 token_auth=jira_token)  # connection to the jira
 
     search_query = obj_jira_data.search_query  # the search query
-    jira_fields_needed = ["status", "created"]
+    jira_fields_needed = ["status", "created"] 
+    jira_fields_needed.extend(additional_columns)
     max_results = 1000 # Maximum results per request (set to JIra's limit)
     all_jira_issues = [] # List to store retrieved issues
     start_at = 0 # Initial starting point for pagination
@@ -153,11 +169,16 @@ try:
 
             obj_jira_data.clear_later_workflow_column_value(mapped_column_final_issue_status)
             # add the change date (needed format) to the csv_row_list object and add to csv
-            date_utility = DateUtil(config[ConfigKeyConst.OUTPUT_DATE_FORMAT_KEY.value])
+            date_utility = DateUtil(DateUtilConst.DATE_FORMAT_STANDARD.value)
             for column in obj_jira_data.jira_board_columns:
                 obj_jira_data.csv_single_row_list[column[JiraJsonKeyConst.COLUMN_NAME.value]] = date_utility.convert_jira_date(
                     obj_jira_data.csv_single_row_list[column[JiraJsonKeyConst.COLUMN_NAME.value]])
 
+            # set additional column values
+            obj_jira_data.set_board_column_value("status", jira_issue.fields.status )
+            obj_jira_data.set_board_column_value("customfield_10002", jira_issue.get_field("customfield_10002") )
+            obj_jira_data.set_board_column_value("summary", jira_issue.fields.summary )
+            # write to the object
             csv_writer.writerow(obj_jira_data.csv_single_row_list.values())
     print('\n')
     print(f"Issues fetched: {len(all_jira_issues)} records")
