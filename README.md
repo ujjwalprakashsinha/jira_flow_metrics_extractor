@@ -68,3 +68,5 @@
         - -  Please ensure that the JQL does not contain double quotes (") and are replaced by single quotes (')
    
    - `board_id` => the jira board id, for example (https://jira.abc.com/secure/RapidBoard.jspa?rapidView=12345) the number after rapidview
+   
+   - `active` => this is an optional value and can be set to false/true. This value ensures (non)visibility of this listing when the program is executed. 
