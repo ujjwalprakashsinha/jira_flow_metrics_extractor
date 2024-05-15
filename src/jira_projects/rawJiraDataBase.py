@@ -50,7 +50,7 @@ class JiraDataBase:
         loop_breaker = False
         for column in self.jira_board_columns:
             for status in column[JiraJsonKeyConst.STATUSES.value]:
-                if status.casefold() == current_status.casefold():
+                if current_status != None and status.casefold() == current_status.casefold():
                     mapped_column = column[JiraJsonKeyConst.COLUMN_NAME.value]
                     loop_breaker = True
                     break
