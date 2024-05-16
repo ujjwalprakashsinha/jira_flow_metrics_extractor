@@ -1,5 +1,7 @@
 
-# Description
+
+# Jira Flow Metrics Extractor  
+This code extracts the Flow metrics for jira work items associated with a specific jira board  
 
 ## Initial Setup
 1. Install python on your machine - python 3.11
@@ -69,4 +71,8 @@
    
    - `board_id` => the jira board id, for example (https://jira.abc.com/secure/RapidBoard.jspa?rapidView=12345) the number after rapidview
    
-   - `active` => this is an optional value and can be set to false/true. This value ensures (non)visibility of this listing when the program is executed. 
+   - `active` => this is an optional value and can be set to `false` or `true`. This value ensures (non)visibility of this listing when the program is executed.
+
+
+## Execution
+- Execute the mainTWUGDataExtract.py and follow the instructions
