@@ -102,14 +102,7 @@ try:
     obj_jira_data = JiraDataBase(search_query=obj_query[JiraJsonKeyConst.JQL.value], jira_board_columns=columns,
                                  output_file_name=output_file_name)
 
-    # NEW CODE
-    additional_columns = ["status", "summary", "customfield_10002"] # customfield_10002 = Story Points
-   
-    for add_col in additional_columns:
-        obj_dict = {}
-        obj_dict[JiraJsonKeyConst.COLUMN_NAME.value] = add_col
-        obj_jira_data.insert_additional_columns_to_csv(obj_dict)
-    # --------
+    
 
     print(f'Please wait, we are preparing data for "{obj_query[JiraJsonKeyConst.NAME.value]}"')
 
@@ -117,8 +110,16 @@ try:
                 token_auth=jira_token)  # connection to the jira
 
     search_query = obj_jira_data.search_query  # the search query
-    jira_fields_needed = ["status", "created"] 
-    jira_fields_needed.extend(additional_columns)
+    # NEW CODE
+    additional_columns = ["summary", "jiralink", "status", "Project Key", "Project Name",  "Story Point"] # customfield_10002 = Story Points
+   
+    for add_col in additional_columns:
+        obj_dict = {}
+        obj_dict[JiraJsonKeyConst.COLUMN_NAME.value] = add_col
+        obj_jira_data.insert_additional_columns_to_csv(obj_dict)
+    # --------
+    jira_fields_needed = ["status", "created", "summary", "project", "customfield_10002"] # customfield_10002 = Story Points
+    # jira_fields_needed.extend(additional_columns)
     max_results = 1000 # Maximum results per request (set to JIra's limit)
     all_jira_issues = [] # List to store retrieved issues
     start_at = 0 # Initial starting point for pagination
@@ -175,9 +176,12 @@ try:
                     obj_jira_data.csv_single_row_list[column[JiraJsonKeyConst.COLUMN_NAME.value]])
 
             # set additional column values
-            obj_jira_data.set_board_column_value("status", jira_issue.fields.status )
-            obj_jira_data.set_board_column_value("customfield_10002", jira_issue.get_field("customfield_10002") )
-            obj_jira_data.set_board_column_value("summary", jira_issue.fields.summary )
+            obj_jira_data.set_board_column_value("jiralink", f"{config[ConfigKeyConst.JIRA_URL_KEY.value]}/browse/{jira_issue.key}" )
+            obj_jira_data.set_board_column_value("status", jira_issue.fields.status)
+            obj_jira_data.set_board_column_value("Project Key", jira_issue.fields.project)
+            obj_jira_data.set_board_column_value("Project Name", jira_issue.fields.project.name)
+            #obj_jira_data.set_board_column_value("Story Point", jira_issue.get_field("customfield_10002") )
+            #obj_jira_data.set_board_column_value("summary", jira_issue.fields.summary )
             # write to the object
             csv_writer.writerow(obj_jira_data.csv_single_row_list.values())
     print('\n')
@@ -187,3 +191,4 @@ try:
     print(f'CSV file {output_csv_file_fullpath} created...' + ' ' + str(datetime.now()))
 except Exception as e:
     print(f"Error : {e}")
+    print(e.__traceback__)  # Prints the traceback
