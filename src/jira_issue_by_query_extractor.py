@@ -44,7 +44,7 @@ try:
 
     search_query = "issuetype = Bug and statusCategory in ('To Do', 'In Progress')" # the search query
 
-    jira_fields_needed = ["status", "created", "summary", "project", "customfield_10002"] # customfield_10002 = Story Points
+    jira_fields_needed = ["status", "created", "summary", "project", "customfield_10002", "customfield_11115", "priority"] # customfield_10002 = Story Points
     max_results = 1000 # Maximum results per request (set to JIra's limit)
     all_jira_issues = [] # List to store retrieved issues
     start_at = 0 # Initial starting point for pagination
@@ -71,8 +71,10 @@ try:
             "summary": "", 
             #"jiralink": "",
             "status": "",
-            "Project Key": "", 
-            "Project Name": "",
+            "environment": "",
+            "priority": "",
+            "project key": "", 
+            "project name": ""
             #"Story Point": ""
         }
     with open(output_csv_file_fullpath, 'w', newline='') as csvfile:
@@ -83,8 +85,11 @@ try:
             csv_single_row_list["ID"] =  jira_issue.key
             #csv_single_row_list["jiralink"] = f"{config[ConfigKeyConst.JIRA_URL_KEY.value]}/browse/{jira_issue.key}"
             csv_single_row_list["status"] = jira_issue.fields.status
-            csv_single_row_list["Project Key"] = jira_issue.fields.project
-            csv_single_row_list["Project Name"] = jira_issue.fields.project.name
+            csv_single_row_list["project key"] = jira_issue.fields.project
+            csv_single_row_list["project name"] = jira_issue.fields.project.name
+            csv_single_row_list["priority"] = jira_issue.fields.priority.name
+            if hasattr(jira_issue.fields, "customfield_11115") and  jira_issue.fields.customfield_11115 != None:
+                csv_single_row_list["environment"] = jira_issue.get_field("customfield_11115")
             #csv_single_row_list[Story Point"] = jira_issue.get_field("customfield_10002")
             #csv_single_row_list["summary"] = jira_issue.fields.summary 
             # write to the object
