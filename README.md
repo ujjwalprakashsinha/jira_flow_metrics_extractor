@@ -1,5 +1,5 @@
 <div align="center" id="top"> 
-  <img src="./.github/app.gif" alt="Jira_Flow_Metric_Extractor_Code" />
+  <img src="../resource/img/jfmr.jpeg" alt="Jira_Flow_Metric_Extractor_Code" />
 
   &#xa0;
 
@@ -17,8 +17,8 @@
 <p align="center">
   <a href="#dart-about">About</a> &#xa0; | &#xa0; 
   <a href="#sparkles-features">Features</a> &#xa0; | &#xa0;
-  <a href="#rocket-technologies">Technologies</a> &#xa0; | &#xa0;
   <a href="#white_check_mark-requirements">Requirements</a> &#xa0; | &#xa0;
+  <a href="#white_check_mark-Configurations">Technologies</a> &#xa0; | &#xa0;
   <a href="#checkered_flag-starting">Starting</a> &#xa0; | &#xa0;
   <a href="#memo-license">License</a> &#xa0; | &#xa0;
   <a href="https://github.com/{{YOUR_GITHUB_USERNAME}}" target="_blank">Author</a>
@@ -114,8 +114,8 @@ Before starting :checkered_flag:, you need to have jira package (jira==3.8.0) in
    
    - `active` => this is an optional value and can be set to `false` or `true`. This value ensures (non)visibility of this listing when the program is executed.
   
-    > [!NOTE]
-    > Please ensure that the last board setting in the configuration file does not have a comma (,) at the end.
+  > [!NOTE]
+  > Please ensure that the last board setting in the configuration file does not have a comma (,) at the end.
 
 ## :checkered_flag: Starting ##
 
