@@ -1,6 +1,33 @@
+<div align="center" id="top"> 
+  <img src="./.github/app.gif" alt="Jira_Flow_Metric_Extractor_Code" />
+
+  &#xa0;
+
+</div>
+
+<h1 align="center">Jira_Flow_Metric_Extractor_Code</h1>
 
 
-# Jira Flow Metrics Extractor  
+<!-- <h4 align="center"> 
+	🚧  Jira Flow Metrics Extractor  🚀 Under construction...  🚧
+</h4> 
+
+<hr> -->
+
+<p align="center">
+  <a href="#dart-about">About</a> &#xa0; | &#xa0; 
+  <a href="#sparkles-features">Features</a> &#xa0; | &#xa0;
+  <a href="#rocket-technologies">Technologies</a> &#xa0; | &#xa0;
+  <a href="#white_check_mark-requirements">Requirements</a> &#xa0; | &#xa0;
+  <a href="#checkered_flag-starting">Starting</a> &#xa0; | &#xa0;
+  <a href="#memo-license">License</a> &#xa0; | &#xa0;
+  <a href="https://github.com/{{YOUR_GITHUB_USERNAME}}" target="_blank">Author</a>
+</p>
+
+<br>
+
+## :dart: About ##
+
 This code extracts the Flow metrics for jira work items associated with a specific jira board - i.e how long issues spend in different stages of a workflow in Jira.
 The extracted data can be used to generate insights which heps the team to effectively inspect and adapte.
 
@@ -10,7 +37,7 @@ The extracted data can be used to generate insights which heps the team to effec
 - Work In Progress Count
 - Throughout
 
-## What it does:
+**What it does:**
 
 - Connects to your Jira instance using your credentials.
 - Allows you to choose a specific project query (board) to analyze.
@@ -19,59 +46,25 @@ The extracted data can be used to generate insights which heps the team to effec
 - Analyzes the issue history to see when each issue moved between stages.
 - Saves the results to a CSV file for further analysis.
 
-## Benefits:
+## :sparkles: Features ##
 
-- Understand how efficiently your team is working by identifying bottlenecks in the workflow.
-- Track how issues are aging in your system.
-- Super charge your planning and forecast based on real data.
-
-## Initial Setup
-
-1. Install python on your machine - python 3.11
-   - Only for Windows
-     - Set python path in the environment variable
-3. Install Jira package - jira==3.8.0
-   - Mac
-     -Open terminal and install jira package
-     - pip3 install jira
-   - Windows
-     -Open command line and install jira package
-     - pip install jira
-4. Create your Personal Jira Access Token which will be used by the program
-   - https://support.atlassian.com/atlassian-account/docs/manage-api-tokens-for-your-atlassian-account/
-5. Creating and setting Environment variable for jira access token to save your Personal Jira Access Token
-   - Mac Users
-     - **Permanent Environment Variable:** This method makes the variable available across all terminal sessions, including new ones you open later.
-
-        - **Identify your shell:**
-            - Run the following command in your terminal to see which shell you're using (most likely `bash` or `zsh`):
-                - `echo $SHELL`
-        - **Edit your shell profile:** The specific profile file depends on your shell:
-            - .**Zsh (default on macOS Big Sur or later):** Edit the `.zshrc` file in your home directory.Use a text editor like `nano` or `vim` to edit the file. You can open the file in your terminal with:
-                - `nano ~/.zshrc # For zsh`
-        - **Add the environment variable:** Inside the profile file, add a new line in the format:
-            - `export jira_token=VALUE`
-            
-              - Replace `VALUE` with your personal jira access token.
-        - **Save and source the file:** In your text editor, save the changes.In your terminal window, run the following command to reload the profile and make the variable available in the current session:
-            - `source ~/.zshrc # For zsh`
-            - `source ~/.bash_profile # For bash`
-        - **Verifying the Environment Variable:**
-            - To check if the environment variable is set correctly, run the following command in your terminal:
-                - `echo $jira_token`
-   - Windows Users
-     - To create or modify environment variables on Windows:
-        - Right-click the Computer icon and choose Properties, or in Windows Control Panel, choose System.
-        - Choose Advanced system settings.
-        - On the Advanced tab, click Environment Variables.
-        - Click New to create a new environment variable.
-          - variable name = `jira_token`
-          - value = `your personal jira access token`
+:heavy_check_mark: Understand how efficiently your team is working by identifying bottlenecks in the workflow;\
+:heavy_check_mark: Track how issues are aging in your system;\
+:heavy_check_mark: Super charge your planning and forecast based on real data;
 
 
-      - Reference link for help: https://docs.oracle.com/cd/E83411_01/OREAD/creating-and-modifying-environment-variables-on-windows.htm#OREAD158
+## :white_check_mark: Requirements ##
 
-## Configurations
+Before starting :checkered_flag:, you need to have jira package (jira==3.8.0) installed.
+- Mac
+  -Open terminal and install jira package
+  - pip3 install jira
+- Windows
+  -Open command line and install jira package
+  - pip install jira
+
+## :white_check_mark: Configurations ##
+
 1. Configuration Setting for this project
 
     File : `config/config.json`
@@ -124,24 +117,31 @@ The extracted data can be used to generate insights which heps the team to effec
     > [!NOTE]
     > Please ensure that the last board setting in the configuration file does not have a comma (,) at the end.
 
-## Execution
-- Execute the mainTWUGDataExtract.py and follow the instructions
+## :checkered_flag: Starting ##
 
-## Attribution
+```bash
+# Clone this project
+$ git clone https://github.com/ujjwalprakashsinha/jira_cycletime_code
 
-If you use this project in your own work, we kindly ask that you give us credit by mentioning the project name and a link to the repository. Here's an example of how you can do this:
+# Access
+$ cd jira_cycletime_code/src
 
-Flow metrics extractor for Jira: [[link to the GitHub repository](https://github.com/ujjwalprakashsinha/jira_cycletime_code.git)]
+# Install dependencies
+$ pip install jira
 
-This is a nice way to show appreciation and encourage others to contribute to the project.
+# Run the project
+$ python mainTWIGDataExtract.py
+
+# The server will initialize in the <http://localhost:3000>
+```
+
+## :memo: License ##
+
+This project is under license from MIT. For more details, see the [LICENSE](LICENSE.md) file.
 
 
-## MIT License
+Made with :heart: by <a href="https://github.com/ujjwalprakashsinha" target="_blank">Ujjwal Sinha</a>
 
-**Copyright (c) 2024 Ujjwal Sinha**
+&#xa0;
 
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+<a href="#top">Back to top</a>
