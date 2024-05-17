@@ -1,9 +1,32 @@
 
 
 # Jira Flow Metrics Extractor  
-This code extracts the Flow metrics for jira work items associated with a specific jira board  
+This code extracts the Flow metrics for jira work items associated with a specific jira board - i.e how long issues spend in different stages of a workflow in Jira.
+The extracted data can be used to generate insights which heps the team to effectively inspect and adapte.
+
+**Below are the list of flow metrics**
+- Cycle Time
+- Workitem Issue Age
+- Work In Progress Count
+- Throughout
+
+## What it does:
+
+- Connects to your Jira instance using your credentials.
+- Allows you to choose a specific project query (board) to analyze.
+- Figures out the different stages (columns) in that workflow.
+- Retrieves all issues associated with the chosen query.
+- Analyzes the issue history to see when each issue moved between stages.
+- Saves the results to a CSV file for further analysis.
+
+## Benefits:
+
+- Understand how efficiently your team is working by identifying bottlenecks in the workflow.
+- Track how issues are aging in your system.
+- Super charge your planning and forecast based on real data.
 
 ## Initial Setup
+
 1. Install python on your machine - python 3.11
    - Only for Windows
      - Set python path in the environment variable
@@ -51,17 +74,17 @@ This code extracts the Flow metrics for jira work items associated with a specif
 ## Configurations
 1. Configuration Setting for this project
 
-    File : `config/config.json`
-    ```
+  File : `config/config.json`
+  ```
 
-    {
-        "jira_url": "https://jira.abc.com",
-        "jira_token_env_varname": "jira_token",
-        "output_date_format": "yyyymmdd"
-    }
-    ```
+  {
+      "jira_url": "https://jira.abc.com",
+      "jira_token_env_varname": "jira_token",
+      "output_date_format": "yyyymmdd"
+  }
+  ```
 
-    - `jira_url` => the url of your jira instance
+   - `jira_url` => the url of your jira instance
 
     - `jira_token_env_varname` => for this code to execute, it requires your personal Jira token configured and set in the environment variable. The 'jira_token_env_varname' config setting should have the name of the name of the environment variable in which your personal Jira token resides.
 
@@ -76,14 +99,14 @@ This code extracts the Flow metrics for jira work items associated with a specif
         {
           "boards": [
             {
-              "name": "PRAU Standard",
-              "jql": "project= PRAU and issuetype in standardIssueTypes() and issuetype != Epic",
-              "board_id": 12819
+              "name": "JFLE",
+              "jql": "project= JELE and issuetype in standardIssueTypes() and issuetype != Epic",
+              "board_id": 1234
             },
             {
-              "name": "Jira Admin",
-              "jql": "project = 'JIRA Administration' AND issuetype not in (Epic, Program, subTaskIssueTypes())",
-              "board_id": 3
+              "name": "Jira",
+              "jql": "project = 'JIRA' AND issuetype not in (Epic, Program, subTaskIssueTypes())",
+              "board_id": 5678
             }
           ]
         }
@@ -98,7 +121,28 @@ This code extracts the Flow metrics for jira work items associated with a specif
    - `board_id` => the jira board id, for example (https://jira.abc.com/secure/RapidBoard.jspa?rapidView=12345) the number after rapidview
    
    - `active` => this is an optional value and can be set to `false` or `true`. This value ensures (non)visibility of this listing when the program is executed.
-
+  
+  > [!NOTE]
+  > Useful information that users should know, even when skimming content.
 
 ## Execution
 - Execute the mainTWUGDataExtract.py and follow the instructions
+
+## Attribution
+
+If you use this project in your own work, we kindly ask that you give us credit by mentioning the project name and a link to the repository. Here's an example of how you can do this:
+
+Flow metrics extractor for Jira: [[link to the GitHub repository](https://github.com/ujjwalprakashsinha/jira_cycletime_code.git)]
+
+This is a nice way to show appreciation and encourage others to contribute to the project.
+
+
+## MIT License
+
+**Copyright (c) 2024 Ujjwal Sinha**
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
