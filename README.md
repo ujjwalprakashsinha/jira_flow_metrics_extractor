@@ -76,7 +76,6 @@ The extracted data can be used to generate insights which heps the team to effec
 
     File : `config/config.json`
     ```
-
     {
         "jira_url": "https://jira.abc.com",
         "jira_token_env_varname": "jira_token",
@@ -122,8 +121,8 @@ The extracted data can be used to generate insights which heps the team to effec
    
    - `active` => this is an optional value and can be set to `false` or `true`. This value ensures (non)visibility of this listing when the program is executed.
   
-  > [!NOTE]
-  > Useful information that users should know, even when skimming content.
+      > [!NOTE]
+      > Please ensure that the last board setting in the configuration file does not have a comma (,) at the end.
 
 ## Execution
 - Execute the mainTWUGDataExtract.py and follow the instructions
