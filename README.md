@@ -84,13 +84,13 @@ The extracted data can be used to generate insights which heps the team to effec
   }
   ```
 
-   - `jira_url` => the url of your jira instance
+  - `jira_url` => the url of your jira instance
 
-    - `jira_token_env_varname` => for this code to execute, it requires your personal Jira token configured and set in the environment variable. The 'jira_token_env_varname' config setting should have the name of the name of the environment variable in which your personal Jira token resides.
+  - `jira_token_env_varname` => for this code to execute, it requires your personal Jira token configured and set in the environment variable. The 'jira_token_env_varname' config setting should have the name of the name of the environment variable in which your personal Jira token resides.
 
-    - `output_date_format` => This code supports 2 different date format as output
-        - `"yyyymmdd"`       for TWiG - https://analytics.actionableagile.com/twig/index.html
-        - `"dd.mm.yyyy"`     for normal excel operations
+  - `output_date_format` => This code supports 2 different date format as output
+      - `"yyyymmdd"`       for TWiG - https://analytics.actionableagile.com/twig/index.html
+      - `"dd.mm.yyyy"`     for normal excel operations
 
 2. Configuration of the jira projects/board which needs to be executed
 
