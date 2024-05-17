@@ -55,16 +55,17 @@ The extracted data can be used to generate insights which heps the team to effec
 
 ## :white_check_mark: Requirements ##
 
--Before starting :checkered_flag:, you need to have jira package (jira==3.8.0) installed.
-  - Mac
-    -Open terminal and install jira package
-    - pip3 install jira
-  - Windows
-    -Open command line and install jira package
-    - pip install jira
-- Create your Personal Jira Access Token (for your/your companies jira instance) which will be used by the program
-   - check this for reference on how to create personal token: [manage-api-tokens-for-your-atlassian-account](https://support.atlassian.com/atlassian-account/docs/manage-api-tokens-for-your-atlassian-account/) 
-- Creating and setting Environment variable for jira access token `jira_token` to save your Personal Jira Access Token. Check details [Setting Environment Variable](EnvVarDoc.md)
+-Before starting :checkered_flag:, you need to have following things
+  - jira package (jira==3.8.0) installed.
+    - Mac
+      - Open terminal and install jira package
+        - `pip3 install jira`
+    - Windows
+      - Open command line and install jira package
+        - `pip install jira`
+  - Create your Personal Jira Access Token (for your/your companies jira instance) which will be used by the program
+    - check this for reference on how to create personal token: [manage-api-tokens-for-your-atlassian-account](https://support.atlassian.com/atlassian-account/docs/manage-api-tokens-for-your-atlassian-account/) 
+  - Creating and setting Environment variable for jira access token `jira_token` to save your Personal Jira Access Token. Check details [Setting Environment Variable](EnvVarDoc.md)
   
 ## :robot: Configurations ##
 :pushpin: Please create 2 configuration files under `config` folder :file_folder: with below name and content. Update the config values to match your requirements.
