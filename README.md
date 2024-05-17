@@ -98,6 +98,7 @@ The extracted data can be used to generate insights which heps the team to effec
 
 ## :white_check_mark: Configurations ##
 :pushpin: Please create 2 configuration files under `config` folder :file_folder: with below name and content. Update the config values to match your requirements.
+:scissors: You can find sample config files under :file_folder: `resources/sample` folder which you can copy under `config` folder for quick start.
 
 1. Configuration Setting for this project
 

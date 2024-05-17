@@ -1,0 +1,6 @@
+{
+    "jira_url": "https://jira.abc.com",
+    "jira_token_env_varname": "jira_token",
+    "output_date_format": "yyyymmdd",
+    "jira_board_config_filename": "jira_board_config.json"
+}
