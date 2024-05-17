@@ -1,27 +1,27 @@
 <div align="center" id="top"> 
-  <img src="/resources/img/jfmr.jpeg" alt="Jira_Flow_Metric_Extractor_Code" />
+  <img src="/resources/img/jfmr.jpeg" alt="Jira Flow Metric Extractor Code" />
 
   &#xa0;
 
 </div>
 
-<h1 align="center">Jira_Flow_Metric_Extractor_Code</h1>
+<h1 align="center">Jira Flow Metric Extractor Code 🚀 </h1>
 
 
-<!-- <h4 align="center"> 
-	🚧  Jira Flow Metrics Extractor  🚀 Under construction...  🚧
+<h4 align="center"> 
+	🚧  Under construction...  🚧
 </h4> 
 
-<hr> -->
+<hr> 
 
 <p align="center">
   <a href="#dart-about">About</a> &#xa0; | &#xa0; 
   <a href="#sparkles-features">Features</a> &#xa0; | &#xa0;
   <a href="#white_check_mark-requirements">Requirements</a> &#xa0; | &#xa0;
-  <a href="#white_check_mark-Configurations">Technologies</a> &#xa0; | &#xa0;
+  <a href="#white_check_mark-Configurations">Configurations</a> &#xa0; | &#xa0;
   <a href="#checkered_flag-starting">Starting</a> &#xa0; | &#xa0;
   <a href="#memo-license">License</a> &#xa0; | &#xa0;
-  <a href="https://github.com/{{YOUR_GITHUB_USERNAME}}" target="_blank">Author</a>
+  <a href="https://github.com/ujjwalprakashsinha" target="_blank">Author</a>
 </p>
 
 <br>
@@ -55,13 +55,46 @@ The extracted data can be used to generate insights which heps the team to effec
 
 ## :white_check_mark: Requirements ##
 
-Before starting :checkered_flag:, you need to have jira package (jira==3.8.0) installed.
-- Mac
-  -Open terminal and install jira package
-  - pip3 install jira
-- Windows
-  -Open command line and install jira package
-  - pip install jira
+-Before starting :checkered_flag:, you need to have jira package (jira==3.8.0) installed.
+  - Mac
+    -Open terminal and install jira package
+    - pip3 install jira
+  - Windows
+    -Open command line and install jira package
+    - pip install jira
+- Create your Personal Jira Access Token (for your/your companies jira instance) which will be used by the program
+   - check this for reference on how to create personal token: [manage-api-tokens-for-your-atlassian-account](https://support.atlassian.com/atlassian-account/docs/manage-api-tokens-for-your-atlassian-account/) 
+- Creating and setting Environment variable for jira access token to save your Personal Jira Access Token
+  - Mac Users
+      - **Permanent Environment Variable:** This method makes the variable available across all terminal sessions, including new ones you open later.
+
+          - **Identify your shell:**
+              - Run the following command in your terminal to see which shell you're using (most likely `bash` or `zsh`):
+                  - `echo $SHELL`
+          - **Edit your shell profile:** The specific profile file depends on your shell:
+              - .**Zsh (default on macOS Big Sur or later):** Edit the `.zshrc` file in your home directory.Use a text editor like `nano` or `vim` to edit the file. You can open the file in your terminal with:
+                  - `nano ~/.zshrc # For zsh`
+          - **Add the environment variable:** Inside the profile file, add a new line in the format:
+              - `export jira_token=VALUE`
+              
+                - Replace `VALUE` with your personal jira access token.
+          - **Save and source the file:** In your text editor, save the changes.In your terminal window, run the following command to reload the profile and make the variable available in the current session:
+              - `source ~/.zshrc # For zsh`
+              - `source ~/.bash_profile # For bash`
+          - **Verifying the Environment Variable:**
+              - To check if the environment variable is set correctly, run the following command in your terminal:
+                  - `echo $jira_token`
+  - Windows Users
+    - To create or modify environment variables on Windows:
+        - Right-click the Computer icon and choose Properties, or in Windows Control Panel, choose System.
+        - Choose Advanced system settings.
+        - On the Advanced tab, click Environment Variables.
+        - Click New to create a new environment variable.
+          - variable name = `jira_token`
+          - value = `your personal jira access token`
+
+
+      - Reference link for help: [Create/Modify Environment Variable on Windows machine](https://docs.oracle.com/cd/E83411_01/OREAD/creating-and-modifying-environment-variables-on-windows.htm#OREAD158)
 
 ## :white_check_mark: Configurations ##
 
@@ -81,7 +114,7 @@ Before starting :checkered_flag:, you need to have jira package (jira==3.8.0) in
     - `jira_token_env_varname` => for this code to execute, it requires your personal Jira token configured and set in the environment variable. The 'jira_token_env_varname' config setting should have the name of the name of the environment variable in which your personal Jira token resides.
 
     - `output_date_format` => This code supports 2 different date format as output
-        - `"yyyymmdd"`       for TWiG - https://analytics.actionableagile.com/twig/index.html
+        - `"yyyymmdd"`       for [TWiG by ActionableAgile](https://analytics.actionableagile.com/twig/index.html)
         - `"dd.mm.yyyy"`     for normal excel operations
 
 2. Configuration of the jira projects/board which needs to be executed
@@ -120,7 +153,7 @@ Before starting :checkered_flag:, you need to have jira package (jira==3.8.0) in
 ## :checkered_flag: Starting ##
 
 ```bash
-# Clone this project
+# Clone this project or you can copy the repo on to your machine..
 $ git clone https://github.com/ujjwalprakashsinha/jira_cycletime_code
 
 # Access
@@ -132,7 +165,6 @@ $ pip install jira
 # Run the project
 $ python mainTWIGDataExtract.py
 
-# The server will initialize in the <http://localhost:3000>
 ```
 
 ## :memo: License ##
