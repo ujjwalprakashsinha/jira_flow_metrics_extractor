@@ -97,6 +97,7 @@ The extracted data can be used to generate insights which heps the team to effec
       - Reference link for help: [Create/Modify Environment Variable on Windows machine](https://docs.oracle.com/cd/E83411_01/OREAD/creating-and-modifying-environment-variables-on-windows.htm#OREAD158)
 
 ## :white_check_mark: Configurations ##
+:pushpin: Please create 2 configuration file under `config` folder :file_folder: with below name and content. Update the config values to match your requirements.
 
 1. Configuration Setting for this project
 
@@ -105,7 +106,8 @@ The extracted data can be used to generate insights which heps the team to effec
     {
         "jira_url": "https://jira.abc.com",
         "jira_token_env_varname": "jira_token",
-        "output_date_format": "yyyymmdd"
+        "output_date_format": "yyyymmdd",
+        "jira_board_config_filename": "jira_board_config.json"
     }
     ```
 
@@ -116,10 +118,12 @@ The extracted data can be used to generate insights which heps the team to effec
     - `output_date_format` => This code supports 2 different date format as output
         - `"yyyymmdd"`       for [TWiG by ActionableAgile](https://analytics.actionableagile.com/twig/index.html)
         - `"dd.mm.yyyy"`     for normal excel operations
+    
+    - `jira_board_config_filename` => name of the configuration file to get jira board setting. This file should reside under config folder
 
-2. Configuration of the jira projects/board which needs to be executed
+2. Configuration of the jira board from which the data will be extracted
 
-    File: `config/projectQueriesConfig.json`
+    File: `config/jira_board_config.json`
       ```
         {
           "boards": [

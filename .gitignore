@@ -3,6 +3,7 @@ outputFiles
 *.pyc
 .DS_Store
 .idea
+sample_jira_issue_response.json
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

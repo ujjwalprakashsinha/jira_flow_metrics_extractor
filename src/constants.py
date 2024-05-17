@@ -17,7 +17,6 @@ class DateUtilConstants(Enum):
 
 
 class FileFolderNameConstants(Enum):
-    PROJECT_QUERY_CONFIG_FILENAME = "projectQueriesConfig.json"
     CONFIG_FILENAME = "config.json"
     OUTPUT_FOLDERNAME = "outputFiles"
     TWIG_OUTPUT_FILE_POSTFIX = "_twig_jira_data.csv"
@@ -29,3 +28,4 @@ class ConfigKeyConstants(Enum):
     JIRA_URL_KEY = "jira_url"
     JIRA_TOKEN_VARNAME_KEY = "jira_token_env_varname"
     OUTPUT_DATE_FORMAT_KEY = "output_date_format"
+    JIRA_BOARD_CONFIG_FILENAME = "jira_board_config_filename"
