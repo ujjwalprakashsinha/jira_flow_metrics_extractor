@@ -32,10 +32,10 @@ This code extracts the Flow metrics for jira work items associated with a specif
 The extracted data can be used to generate insights which heps the team to effectively inspect and adapte.
 
 **Below are the list of flow metrics**
-- Cycle Time
-- Workitem Issue Age
-- Work In Progress Count
-- Throughout
+- Cycle Time: time it takes to complete one unit of work from start to finish ( `End date - Start date + 1` )
+- Workitem Issue Age: the amount of time a specific task (work item) has been in progress since it first started.
+- Work In Progress Count: the total number of tasks or items that are currently being worked on but haven't yet been finished.
+- Throughout:  the rate at which something gets completed.
 
 **What it does:**
 
