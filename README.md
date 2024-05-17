@@ -97,7 +97,7 @@ The extracted data can be used to generate insights which heps the team to effec
       - Reference link for help: [Create/Modify Environment Variable on Windows machine](https://docs.oracle.com/cd/E83411_01/OREAD/creating-and-modifying-environment-variables-on-windows.htm#OREAD158)
 
 ## :white_check_mark: Configurations ##
-:pushpin: Please create 2 configuration file under `config` folder :file_folder: with below name and content. Update the config values to match your requirements.
+:pushpin: Please create 2 configuration files under `config` folder :file_folder: with below name and content. Update the config values to match your requirements.
 
 1. Configuration Setting for this project
 
