@@ -1,5 +1,5 @@
 <div align="center" id="top"> 
-  <img src="/resources/img/jfme.jpeg" alt="Jira Flow Metric Extractor Code" />
+  <img src="/resources/img/jfme.jpeg" alt="Jira Flow Metric Extractor Code" width="200" height="150" />
 
   &#xa0;
 
