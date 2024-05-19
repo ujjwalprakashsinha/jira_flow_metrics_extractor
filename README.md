@@ -29,13 +29,13 @@
 ## :dart: About ##
 
 This code extracts the Flow metrics for jira work items associated with a specific jira board - i.e how long issues spend in different stages of a workflow in Jira.
-The extracted data can be used to generate insights which heps the team to effectively inspect and adapte.
+The extracted data can be used to generate insights which helps the team to effectively inspect and adapt.
 
 **Below are the list of flow metrics**
 - Cycle Time: time it takes to complete one unit of work from start to finish ( `End date - Start date + 1` )
 - Workitem Issue Age: the amount of time a specific task (work item) has been in progress since it first started.
 - Work In Progress Count: the total number of tasks or items that are currently being worked on but haven't yet been finished.
-- Throughout:  the rate at which something gets completed.
+- Throughput:  the rate at which something gets completed.
 
 **What it does:**
 
@@ -116,12 +116,12 @@ The extracted data can be used to generate insights which heps the team to effec
    - `name` => Short name for the board configured. This will appear when you execute code as one of the options
 
    - `jql` => the jira JQL which needs to be run for fetching the data.
-        - You can use the JQL for the jira board you wnat to configure but ensure that you modify the query to exclude the issue type which are needed for cycle time.
+        - You can use the JQL for the jira board you want to configure but ensure that you modify the query to exclude the issue type which are needed for cycle time.
         - Please ensure that the JQL does not contain double quotes (") and are replaced by single quotes (')
    
    - `board_id` => the jira board id, for example (https://jira.abc.com/secure/RapidBoard.jspa?rapidView=12345) the number after rapidview
    
-   - `active` => this is an optional value and can be set to `false` or `true`. This value ensures (non)visibility of this listing when the program is executed.
+   - `active` => this is an optional value and can be set to `false` or `true`. This value ensures (non) visibility of this listing when the program is executed.
   
   > [!NOTE]
   > Please ensure that the last board setting in the configuration file does not have a comma (,) at the end.
