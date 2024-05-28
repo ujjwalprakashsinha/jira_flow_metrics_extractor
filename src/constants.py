@@ -5,7 +5,14 @@ class JiraJsonKeyConstants(Enum):
     BOARDS = "boards"
     NAME = "name"
     JQL = "jql"
+
+    # where the specified option should be displayed or not
     ACTIVE = "active"
+
+    # config key for jira board id fom which columns and statuses info will be retrieved.   
+    BOARD_ID = "board_id"
+    
+    # config keys for situtaions when board id is not provide and henc columns and related statuses info are provided
     COLUMNS = "columns"
     COLUMN_NAME = "column_name"
     STATUSES = "statuses"

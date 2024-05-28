@@ -89,8 +89,8 @@ try:
     jira_token = cred_manager.get_credential(config[ConfigKeyConst.JIRA_TOKEN_VARNAME_KEY.value])
 
     # check for board id, else use the columns from configuration file
-    if "board_id" in obj_query and obj_query["board_id"] != "":
-        columns = get_columns_array_by_board_id(board_id=int(obj_query["board_id"]))
+    if JiraJsonKeyConst.BOARD_ID.value in obj_query and obj_query[JiraJsonKeyConst.BOARD_ID.value] != "":
+        columns = get_columns_array_by_board_id(board_id=int(obj_query[JiraJsonKeyConst.BOARD_ID.value]))
     else:
         columns = obj_query[JiraJsonKeyConst.COLUMNS.value]
     output_file_name = obj_query[JiraJsonKeyConst.NAME.value] + FileFolderNameConst.TWIG_OUTPUT_FILE_POSTFIX.value
@@ -140,7 +140,7 @@ try:
                 current_status=jira_issue.fields.status.name)
             for history in jira_issue.changelog.histories:
                 for item in history.items:
-                    if item.field == "status":  # checking for status change in the history
+                    if item.field == "status" and item.toString != item.fromString :  # checking for status change in the history & that status did not change to same
                         mapped_column_current_issue_status = obj_jira_data.get_mapped_column_for_status(
                             current_status=item.toString)
                         if mapped_column_current_issue_status == '' or mapped_column_current_issue_status is None:
