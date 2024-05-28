@@ -1,9 +1,15 @@
 from enum import Enum
 
+class GeneralConstants(Enum):
+    BOARD_COLUMNS = "board_columns"
+    FILTER_ID = "filter_id"
+    BOARD_NAME = "board_name"
 
 class JiraJsonKeyConstants(Enum):
     BOARDS = "boards"
+    QUERY_JIRA_BOARD = "query_jira_board"
     NAME = "name"
+    JQL_EXCLUDE = "jql_exclude"
     JQL = "jql"
 
     # where the specified option should be displayed or not

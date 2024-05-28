@@ -13,6 +13,7 @@ from jira_projects.rawJiraDataBase import JiraDataBase
 from constants import JiraJsonKeyConstants as JiraJsonKeyConst
 from constants import FileFolderNameConstants as FileFolderNameConst
 from constants import ConfigKeyConstants as ConfigKeyConst
+from constants import GeneralConstants
 
 
 def get_config_folder_path() -> str:
@@ -27,7 +28,7 @@ def get_output_folder_path() -> str:
 
 def get_all_active_jira_query_names():
     available_jira_queries = []
-    for query in project_queries_config[JiraJsonKeyConst.BOARDS.value]:
+    for query in jira_board_queries_config[JiraJsonKeyConst.BOARDS.value]:
         if JiraJsonKeyConst.ACTIVE.value in query and not query[JiraJsonKeyConst.ACTIVE.value]:
             continue
         available_jira_queries.append(query[JiraJsonKeyConst.NAME.value])
@@ -35,12 +36,13 @@ def get_all_active_jira_query_names():
 
 
 def get_jira_query_by_name(name_of_query):
-    for query in project_queries_config[JiraJsonKeyConst.BOARDS.value]:
+    for query in jira_board_queries_config[JiraJsonKeyConst.BOARDS.value]:
         if query[JiraJsonKeyConst.NAME.value].casefold() == name_of_query.casefold():
             return query
 
 
-def get_columns_array_by_board_id(board_id):
+def get_jira_board_config_by_id(board_id):
+    jira_board_config = {}
     board_columns = []
     # Headers with Authorization using API token
     headers = {
@@ -63,7 +65,10 @@ def get_columns_array_by_board_id(board_id):
             statuses.append(jira_status['name'])
         dict_column[JiraJsonKeyConst.STATUSES.value] = statuses
         board_columns.append(dict_column)
-    return board_columns
+    jira_board_config[GeneralConstants.BOARD_COLUMNS.value] = board_columns
+    jira_board_config[GeneralConstants.FILTER_ID.value] = board_config["filter"]["id"]
+    jira_board_config[GeneralConstants.BOARD_NAME.value] = board_config["name"]
+    return jira_board_config
 
 
 # ***** The Main code execution starts here ****
@@ -71,10 +76,10 @@ try:
     config_file_full_path = os.path.join(get_config_folder_path(), FileFolderNameConst.CONFIG_FILENAME.value)
     with open(config_file_full_path) as file:  # loading config file for this project
         config = json.load(file)
-    project_query_config_full_file_path = os.path.join(get_config_folder_path(),
+    jira_board_config_full_file_path = os.path.join(get_config_folder_path(),
                                                        config[ConfigKeyConst.JIRA_BOARD_CONFIG_FILENAME.value])
-    with open(project_query_config_full_file_path) as file:  # load jira project query configuration file
-        project_queries_config = json.load(file)
+    with open(jira_board_config_full_file_path) as file:  # load jira board query configuration file
+        jira_board_queries_config = json.load(file)
     
     jira_url = config[ConfigKeyConst.JIRA_URL_KEY.value]
     active_queries = get_all_active_jira_query_names()
@@ -89,8 +94,12 @@ try:
     jira_token = cred_manager.get_credential(config[ConfigKeyConst.JIRA_TOKEN_VARNAME_KEY.value])
 
     # check for board id, else use the columns from configuration file
-    if JiraJsonKeyConst.BOARD_ID.value in obj_query and obj_query[JiraJsonKeyConst.BOARD_ID.value] != "":
-        columns = get_columns_array_by_board_id(board_id=int(obj_query[JiraJsonKeyConst.BOARD_ID.value]))
+    if obj_query[JiraJsonKeyConst.QUERY_JIRA_BOARD.value]:
+        cur_jira_board_config = get_jira_board_config_by_id(board_id=int(obj_query[JiraJsonKeyConst.BOARD_ID.value]))
+        filter_id = cur_jira_board_config[GeneralConstants.FILTER_ID.value]
+        if JiraJsonKeyConst.JQL_EXCLUDE.value in obj_query and obj_query[JiraJsonKeyConst.JQL_EXCLUDE.value] != "":
+            obj_query[JiraJsonKeyConst.JQL.value] = f"filter = {filter_id} and {obj_query[JiraJsonKeyConst.JQL_EXCLUDE.value]}"
+        columns = cur_jira_board_config[GeneralConstants.BOARD_COLUMNS.value]
     else:
         columns = obj_query[JiraJsonKeyConst.COLUMNS.value]
     output_file_name = obj_query[JiraJsonKeyConst.NAME.value] + FileFolderNameConst.TWIG_OUTPUT_FILE_POSTFIX.value
