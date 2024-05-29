@@ -1,7 +1,6 @@
 import csv
 from datetime import datetime
 
-from jira import JIRA
 import os
 import sys
 import yaml
@@ -49,28 +48,8 @@ try:
 
     print(f'Please wait, we are preparing data for "{obj_query[JiraJsonKeyConst.NAME.value]}"')
 
-    jira = JIRA(options={'server': jira_url},
-                token_auth=jira_token)  # connection to the jira
-
-    search_query = obj_jira_data.search_query  # the search query
     jira_fields_needed = ["status", "created"]
-    max_results = 1000 # Maximum results per request (set to JIra's limit)
-    all_jira_issues = [] # List to store retrieved issues
-    start_at = 0 # Initial starting point for pagination
-    while True:
-        # Define JQL options with specified fields
-        
-        jql_options = {"fields": jira_fields_needed}
-        jira_issues = jira.search_issues(jql_str=search_query, startAt=start_at,  maxResults=max_results, fields=jira_fields_needed, expand="changelog")
-        # Add retrieved issues to the list
-        all_jira_issues.extend(jira_issues)
-        # print(f"Total Issue count: {jira_issues.total}")
-        # Check for more pages
-        if len(jira_issues) < max_results:
-            break
-
-        # Update starting point for next iteration
-        start_at += max_results
+    all_jira_issues = jira_helper.get_jira_issues(obj_jira_data.search_query, jira_fields_needed, jira_url, jira_token)
 
     print('Data extracted from Jira...')
     output_folder_path = jira_helper.get_output_folder_path(exe_path)

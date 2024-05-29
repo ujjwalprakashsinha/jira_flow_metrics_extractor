@@ -1,7 +1,6 @@
 import csv
 from datetime import datetime
 
-from jira import JIRA
 import os
 import yaml
 from credential.credential_manager import CredentialManager
@@ -21,28 +20,10 @@ try:
     jira_token = cred_manager.get_credential(config[ConfigKeyConst.JIRA_TOKEN_VARNAME_KEY.value])
     output_file_name = "Six_Bug_Raw_Data.csv" 
 
-    jira = JIRA(options={'server': jira_url},
-                token_auth=jira_token)  # connection to the jira
-
     search_query = "issuetype = Bug and statusCategory in ('To Do', 'In Progress')" # the search query
 
     jira_fields_needed = ["status", "created", "summary", "project", "customfield_10002", "customfield_11115", "priority"] # customfield_10002 = Story Points
-    max_results = 1000 # Maximum results per request (set to JIra's limit)
-    all_jira_issues = [] # List to store retrieved issues
-    start_at = 0 # Initial starting point for pagination
-    while True:
-        # Define JQL options with specified fields
-        
-        jql_options = {"fields": jira_fields_needed}
-        jira_issues = jira.search_issues(jql_str=search_query, startAt=start_at,  maxResults=max_results, fields=jira_fields_needed)
-        # Add retrieved issues to the list
-        all_jira_issues.extend(jira_issues)
-        # Check for more pages
-        if len(jira_issues) < max_results:
-            break
-
-        # Update starting point for next iteration
-        start_at += max_results
+    all_jira_issues = jira_helper.get_jira_issues(search_query, jira_fields_needed, jira_url, jira_token, issue_history_needed=False)
 
     print('Data extracted from Jira...')
     output_folder_path = jira_helper.get_output_folder_path(exe_path)

@@ -1,6 +1,7 @@
 import os
 import json
 import requests
+from jira import JIRA
 from constants import JiraJsonKeyConstants as JiraJsonKeyConst, FileFolderNameConstants as FileFolderNameConst, GeneralConstants
 
 def get_config_file_path(exe_folder_path, file_name) -> str:
@@ -54,3 +55,29 @@ def get_jira_board_config_by_id(board_id, jira_token, jira_url):
     jira_board_config[GeneralConstants.FILTER_ID.value] = board_config["filter"]["id"]
     jira_board_config[GeneralConstants.BOARD_NAME.value] = board_config["name"]
     return jira_board_config
+
+
+def get_jira_issues(search_query, jira_fields, jira_url, jira_token, issue_history_needed=True)-> list:
+    jira = JIRA(options={'server': jira_url},
+                token_auth=jira_token)  # connection to the jira
+
+    max_results = 1000 # Maximum results per request (set to JIra's limit)
+    all_jira_issues = [] # List to store retrieved issues
+    start_at = 0 # Initial starting point for pagination
+    if issue_history_needed:
+        expand = "changelog"
+    else:
+        expand = None
+    while True:
+        # Define JQL options with specified fields
+        
+        jira_issues = jira.search_issues(jql_str=search_query, startAt=start_at,  maxResults=max_results, fields=jira_fields, expand=expand)
+        # Add retrieved issues to the list
+        all_jira_issues.extend(jira_issues)
+        # Check for more pages
+        if len(jira_issues) < max_results:
+            break
+
+        # Update starting point for next iteration
+        start_at += max_results
+    return all_jira_issues

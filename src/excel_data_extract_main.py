@@ -1,7 +1,6 @@
 import csv
 from datetime import datetime
 
-from jira import JIRA
 import os
 import sys
 import yaml
@@ -48,33 +47,14 @@ try:
                                  output_file_name=output_file_name)
 
     print(f'Please wait, we are preparing data for "{obj_query[JiraJsonKeyConst.NAME.value]}"')
-
-    jira = JIRA(options={'server': jira_url},
-                token_auth=jira_token)  # connection to the jira
-
-    search_query = obj_jira_data.search_query  # the search query
+    
     # NEW CODE
-    additional_columns = ["summary", "jiralink", "status", "Project Key", "Project Name",  "Story Point"] # customfield_10002 = Story Points
+    additional_columns = ["issuetype", "summary", "jiralink", "status", "Project Key", "Project Name",  "Story Point"] # customfield_10002 = Story Points
    
     obj_jira_data.insert_additional_columns_to_csv(additional_columns)
     # --------
-    jira_fields_needed = ["status", "created", "summary", "project", "customfield_10002"] # customfield_10002 = Story Points
-    max_results = 1000 # Maximum results per request (set to JIra's limit)
-    all_jira_issues = [] # List to store retrieved issues
-    start_at = 0 # Initial starting point for pagination
-    while True:
-        # Define JQL options with specified fields
-        
-        jql_options = {"fields": jira_fields_needed}
-        jira_issues = jira.search_issues(jql_str=search_query, startAt=start_at,  maxResults=max_results, fields=jira_fields_needed, expand="changelog")
-        # Add retrieved issues to the list
-        all_jira_issues.extend(jira_issues)
-        # Check for more pages
-        if len(jira_issues) < max_results:
-            break
-
-        # Update starting point for next iteration
-        start_at += max_results
+    jira_fields_needed = ["status", "created", "issuetype", "summary", "project", "customfield_10002"] # customfield_10002 = Story Points
+    all_jira_issues = jira_helper.get_jira_issues(obj_jira_data.search_query, jira_fields_needed, jira_url, jira_token)
 
     print('Data extracted from Jira...')
     output_folder_path = jira_helper.get_output_folder_path(exe_path)
@@ -115,6 +95,7 @@ try:
 
             # set additional column values
             obj_jira_data.set_board_column_value("jiralink", f"{jira_url}/browse/{jira_issue.key}" )
+            obj_jira_data.set_board_column_value("issuetype", jira_issue.fields.issuetype)
             obj_jira_data.set_board_column_value("status", jira_issue.fields.status)
             obj_jira_data.set_board_column_value("Project Key", jira_issue.fields.project)
             obj_jira_data.set_board_column_value("Project Name", jira_issue.fields.project.name)
