@@ -21,8 +21,11 @@ class JiraDataBase:
         for column in self.jira_board_columns:
             self.csv_single_row_list[column[JiraJsonKeyConst.COLUMN_NAME.value]] = ''
 
-    def insert_additional_columns_to_csv(self, additional_column):
-        self.csv_single_row_list[additional_column[JiraJsonKeyConst.COLUMN_NAME.value]] = ''
+    def insert_additional_columns_to_csv(self, additional_columns):
+        for column in additional_columns:
+            obj_dict = {}
+            obj_dict[JiraJsonKeyConst.COLUMN_NAME.value] = column
+            self.csv_single_row_list[obj_dict[JiraJsonKeyConst.COLUMN_NAME.value]] = ''
 
     def clear_later_workflow_column_value(self, mapped_column_for_status):
         found: bool = False

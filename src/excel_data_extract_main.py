@@ -56,10 +56,7 @@ try:
     # NEW CODE
     additional_columns = ["summary", "jiralink", "status", "Project Key", "Project Name",  "Story Point"] # customfield_10002 = Story Points
    
-    for add_col in additional_columns:
-        obj_dict = {}
-        obj_dict[JiraJsonKeyConst.COLUMN_NAME.value] = add_col
-        obj_jira_data.insert_additional_columns_to_csv(obj_dict)
+    obj_jira_data.insert_additional_columns_to_csv(additional_columns)
     # --------
     jira_fields_needed = ["status", "created", "summary", "project", "customfield_10002"] # customfield_10002 = Story Points
     max_results = 1000 # Maximum results per request (set to JIra's limit)
