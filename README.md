@@ -76,7 +76,7 @@ The extracted data can be used to generate insights which helps the team to effe
     File : `config/config.yaml`
     ```
     # How to connect to JIRA?
-    jira_url: https://jira.abc.com # the url on your jira instance
+    jira_url: https://jira.abc.com # the url of your jira instance
     jira_token_env_varname: jira_token
     # jira_token_env_varname: for this code to execute, it requires your personal Jira token configured and set in the environment variable. 
     # The 'jira_token_env_varname' config setting should have the name of the name of the environment variable in which your personal Jira token resides.
