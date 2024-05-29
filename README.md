@@ -61,7 +61,7 @@ The extracted data can be used to generate insights which helps the team to effe
       - Open terminal, go to the project directory and install package using requirement.txt (you will find the requirement.txt under the project folder)
         - `pip3 install -r requirement.txt`
     - Windows
-      - Open command line and install jira package
+      - Open command line, go to the project directory and install package using requirement.txt
         - `pip install -r requirement.txt`
   - Create your Personal Jira Access Token (for your/your companies jira instance) which will be used by the program
     - check this for reference on how to create personal token: [manage-api-tokens-for-your-atlassian-account](https://support.atlassian.com/atlassian-account/docs/manage-api-tokens-for-your-atlassian-account/) 
