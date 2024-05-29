@@ -4,7 +4,7 @@ from datetime import datetime
 from jira import JIRA
 import os
 import json
-
+import yaml
 from credential.credential_manager import CredentialManager
 from utils.dateutil import DateUtil
 from constants import JiraJsonKeyConstants as JiraJsonKeyConst
@@ -28,11 +28,7 @@ def get_output_folder_path() -> str:
 try:
     config_file_full_path = os.path.join(get_config_folder_path(), FileFolderNameConst.CONFIG_FILENAME.value)
     with open(config_file_full_path) as file:  # loading config file for this project
-        config = json.load(file)
-    project_query_config_full_file_path = os.path.join(get_config_folder_path(),
-                                                       config[ConfigKeyConst.JIRA_BOARD_CONFIG_FILENAME.value])
-    with open(project_query_config_full_file_path) as file:  # load jira project query configuration file
-        project_queries_config = json.load(file)
+        config = yaml.safe_load(file)
     jira_url = config[ConfigKeyConst.JIRA_URL_KEY.value]
     
     cred_manager = CredentialManager()

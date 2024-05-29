@@ -69,18 +69,22 @@ The extracted data can be used to generate insights which helps the team to effe
   
 ## :robot: Configurations ##
 :pushpin: Please create 2 configuration files under `config` folder :file_folder: with below name and content. Update the config values to match your requirements.
-:scissors: You can find sample config files under :file_folder: `resources/sample` folder which you can copy under `config` folder for quick start.
+:scissors: You can find sample config files under :file_folder: `config` folder which you can rename for quick start.
 
 1. Configuration Setting for this project
 
-    File : `config/config.json`
+    File : `config/config.yaml`
     ```
-    {
-        "jira_url": "https://jira.abc.com",
-        "jira_token_env_varname": "jira_token",
-        "output_date_format": "yyyymmdd",
-        "jira_board_config_filename": "jira_board_config.json"
-    }
+    # How to connect to JIRA?
+    jira_url: https://abc.sixt.com # the url on your jira instance
+    jira_token_env_varname: jira_token
+    # jira_token_env_varname: for this code to execute, it requires your personal Jira token configured and set in the environment variable. 
+    # The 'jira_token_env_varname' config setting should have the name of the name of the environment variable in which your personal Jira token resides.
+
+    # output date format
+    output_date_format: yyyymmdd # the 2 support date formates are yyyymmdd & dd.mm.yyyy which will be used for the final output file
+    #jira board configuration file name
+    jira_board_config_filename: jira_board_config.yaml 
     ```
 
     - `jira_url` => the url of your jira instance
@@ -95,24 +99,17 @@ The extracted data can be used to generate insights which helps the team to effe
 
 2. Configuration of the jira board from which the data will be extracted
 
-    File: `config/jira_board_config.json`
+    File: `config/jira_board_config.yaml`
       ```
-        {
-          "boards": [
-            {
-              "name": "JFLE",
-              "query_jira_board": true,
-              "jql_issue_type": "issuetype not in (Epic, Program, Test, subTaskIssueTypes())",
-              "board_id": 12819
-            },
-            {
-              "name": "JIRA",
-              "query_jira_board": true,
-              "jql_issue_type": "issuetype not in (Epic, Program, Test, subTaskIssueTypes())",
-              "board_id": 5678
-            }
-          ]
-        }
+        boards:
+        - name: SAMPLE1
+          query_jira_board: true
+          jql_issue_type: "issuetype not in (Epic, Program, Test, subTaskIssueTypes())"
+          board_id: 12819
+        - name: Jira
+          query_jira_board: true
+          jql_issue_type: "issuetype not in (Epic, Program, Test, subTaskIssueTypes())"
+          board_id: 11102
       ```
 
    - `name` => Short name for the board configured. This will appear when you execute code as one of the options
@@ -125,10 +122,7 @@ The extracted data can be used to generate insights which helps the team to effe
    
    - `board_id` => the jira board id, for example (https://jira.abc.com/secure/RapidBoard.jspa?rapidView=12345) the number after rapidview. This board info will be used for getting issues and related board workflow.
    
-   - `active` => this is an optional value and can be set to `false` or `true`. This value ensures (non) visibility of this listing when the program is executed.
-  
-  > [!NOTE]
-  > Please ensure that the last board setting in the configuration file does not have a comma (,) at the end.
+   - `show` => this is an optional value and can be set to `show: false` or `show: true`. This value ensures (non) visibility of this listing when the program is executed.
 
 ## :checkered_flag: Starting ##
 

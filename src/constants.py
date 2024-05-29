@@ -13,7 +13,7 @@ class JiraJsonKeyConstants(Enum):
     JQL = "jql"
 
     # where the specified option should be displayed or not
-    ACTIVE = "active"
+    SHOW = "show"
 
     # config key for jira board id fom which columns and statuses info will be retrieved.   
     BOARD_ID = "board_id"
@@ -30,7 +30,7 @@ class DateUtilConstants(Enum):
 
 
 class FileFolderNameConstants(Enum):
-    CONFIG_FILENAME = "config.json"
+    CONFIG_FILENAME = "config.yaml"
     OUTPUT_FOLDERNAME = "outputFiles"
     TWIG_OUTPUT_FILE_POSTFIX = "_twig_jira_data.csv"
     COLUMN_OUTPUT_FILE_POSTFIX = "_column_jira_data.csv"

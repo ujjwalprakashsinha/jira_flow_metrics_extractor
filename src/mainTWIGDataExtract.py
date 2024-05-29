@@ -5,6 +5,7 @@ from jira import JIRA
 import os
 import sys
 import json
+import yaml
 import requests
 
 from credential.credential_manager import CredentialManager
@@ -29,7 +30,7 @@ def get_output_folder_path() -> str:
 def get_all_active_jira_query_names():
     available_jira_queries = []
     for query in jira_board_queries_config[JiraJsonKeyConst.BOARDS.value]:
-        if JiraJsonKeyConst.ACTIVE.value in query and not query[JiraJsonKeyConst.ACTIVE.value]:
+        if JiraJsonKeyConst.SHOW.value in query and not query[JiraJsonKeyConst.SHOW.value]:
             continue
         available_jira_queries.append(query[JiraJsonKeyConst.NAME.value])
     return available_jira_queries
@@ -75,11 +76,11 @@ def get_jira_board_config_by_id(board_id):
 try:
     config_file_full_path = os.path.join(get_config_folder_path(), FileFolderNameConst.CONFIG_FILENAME.value)
     with open(config_file_full_path) as file:  # loading config file for this project
-        config = json.load(file)
+        config = yaml.safe_load(file)
     jira_board_config_full_file_path = os.path.join(get_config_folder_path(),
                                                        config[ConfigKeyConst.JIRA_BOARD_CONFIG_FILENAME.value])
     with open(jira_board_config_full_file_path) as file:  # load jira board query configuration file
-        jira_board_queries_config = json.load(file)
+        jira_board_queries_config = yaml.safe_load(file)
     
     jira_url = config[ConfigKeyConst.JIRA_URL_KEY.value]
     active_queries = get_all_active_jira_query_names()
