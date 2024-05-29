@@ -101,12 +101,14 @@ The extracted data can be used to generate insights which helps the team to effe
           "boards": [
             {
               "name": "JFLE",
-              "jql": "project= JELE and issuetype in standardIssueTypes() and issuetype != Epic",
-              "board_id": 1234
+              "query_jira_board": true,
+              "jql_issue_type": "issuetype not in (Epic, Program, Test, subTaskIssueTypes())",
+              "board_id": 12819
             },
             {
-              "name": "Jira",
-              "jql": "project = 'JIRA' AND issuetype not in (Epic, Program, subTaskIssueTypes())",
+              "name": "JIRA",
+              "query_jira_board": true,
+              "jql_issue_type": "issuetype not in (Epic, Program, Test, subTaskIssueTypes())",
               "board_id": 5678
             }
           ]
@@ -115,11 +117,13 @@ The extracted data can be used to generate insights which helps the team to effe
 
    - `name` => Short name for the board configured. This will appear when you execute code as one of the options
 
-   - `jql` => the jira JQL which needs to be run for fetching the data.
-        - You can use the JQL for the jira board you want to configure but ensure that you modify the query to exclude the issue type which are needed for cycle time.
+   - `query_jira_board` => value should be `true`. It specifies that the program will fetch jira query (jql) and board workflow from the specified board id.
+
+   - `jql_issue_type` => part of jira JQL which defined the type of issues to select or exclude. If this attribute is not mentioned then all issue types from the board are retrieved. 
+        - You can speific the jql with issuetype (exclude or include the issue type which are needed for cycle time).
         - Please ensure that the JQL does not contain double quotes (") and are replaced by single quotes (')
    
-   - `board_id` => the jira board id, for example (https://jira.abc.com/secure/RapidBoard.jspa?rapidView=12345) the number after rapidview
+   - `board_id` => the jira board id, for example (https://jira.abc.com/secure/RapidBoard.jspa?rapidView=12345) the number after rapidview. This board info will be used for getting issues and related board workflow.
    
    - `active` => this is an optional value and can be set to `false` or `true`. This value ensures (non) visibility of this listing when the program is executed.
   
