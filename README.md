@@ -134,7 +134,7 @@ $ git clone https://github.com/ujjwalprakashsinha/jira_cycletime_code
 $ cd jira_cycletime_code/src
 
 # Install dependencies
-$ pip install jira
+$ pip3 install -r requirement.txt
 
 # Run the project
 $ python mainTWIGDataExtract.py
