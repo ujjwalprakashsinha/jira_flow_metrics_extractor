@@ -82,7 +82,7 @@ The extracted data can be used to generate insights which helps the team to effe
     # The 'jira_token_env_varname' config setting should have the name of the name of the environment variable in which your personal Jira token resides.
 
     # output date format
-    output_date_format: yyyymmdd # the 2 support date formates are yyyymmdd & dd.mm.yyyy which will be used for the final output file
+    output_date_format: yyyymmdd # the 2 currently supported date formates are yyyymmdd & dd.mm.yyyy which will be used for the final output file
     #jira board configuration file name
     jira_board_config_filename: jira_board_config.yaml 
     ```
