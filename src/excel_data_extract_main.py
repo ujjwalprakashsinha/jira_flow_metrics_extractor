@@ -49,7 +49,7 @@ try:
 
     print(f'Please wait, we are preparing data for "{obj_query[JiraJsonKeyConst.NAME.value]}"')
 
-    jira = JIRA(options={'server': config[ConfigKeyConst.JIRA_URL_KEY.value]},
+    jira = JIRA(options={'server': jira_url},
                 token_auth=jira_token)  # connection to the jira
 
     search_query = obj_jira_data.search_query  # the search query
@@ -69,7 +69,6 @@ try:
         jira_issues = jira.search_issues(jql_str=search_query, startAt=start_at,  maxResults=max_results, fields=jira_fields_needed, expand="changelog")
         # Add retrieved issues to the list
         all_jira_issues.extend(jira_issues)
-        # print(f"Total Issue count: {jira_issues.total}")
         # Check for more pages
         if len(jira_issues) < max_results:
             break
@@ -115,7 +114,7 @@ try:
                     obj_jira_data.csv_single_row_list[column[JiraJsonKeyConst.COLUMN_NAME.value]])
 
             # set additional column values
-            obj_jira_data.set_board_column_value("jiralink", f"{config[ConfigKeyConst.JIRA_URL_KEY.value]}/browse/{jira_issue.key}" )
+            obj_jira_data.set_board_column_value("jiralink", f"{jira_url}/browse/{jira_issue.key}" )
             obj_jira_data.set_board_column_value("status", jira_issue.fields.status)
             obj_jira_data.set_board_column_value("Project Key", jira_issue.fields.project)
             obj_jira_data.set_board_column_value("Project Name", jira_issue.fields.project.name)

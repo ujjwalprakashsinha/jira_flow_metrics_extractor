@@ -21,7 +21,7 @@ try:
     jira_token = cred_manager.get_credential(config[ConfigKeyConst.JIRA_TOKEN_VARNAME_KEY.value])
     output_file_name = "Six_Bug_Raw_Data.csv" 
 
-    jira = JIRA(options={'server': config[ConfigKeyConst.JIRA_URL_KEY.value]},
+    jira = JIRA(options={'server': jira_url},
                 token_auth=jira_token)  # connection to the jira
 
     search_query = "issuetype = Bug and statusCategory in ('To Do', 'In Progress')" # the search query

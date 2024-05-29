@@ -49,7 +49,7 @@ try:
 
     print(f'Please wait, we are preparing data for "{obj_query[JiraJsonKeyConst.NAME.value]}"')
 
-    jira = JIRA(options={'server': config[ConfigKeyConst.JIRA_URL_KEY.value]},
+    jira = JIRA(options={'server': jira_url},
                 token_auth=jira_token)  # connection to the jira
 
     search_query = obj_jira_data.search_query  # the search query
