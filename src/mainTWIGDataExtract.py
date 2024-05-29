@@ -97,8 +97,8 @@ try:
     if obj_query[JiraJsonKeyConst.QUERY_JIRA_BOARD.value]:
         cur_jira_board_config = get_jira_board_config_by_id(board_id=int(obj_query[JiraJsonKeyConst.BOARD_ID.value]))
         filter_id = cur_jira_board_config[GeneralConstants.FILTER_ID.value]
-        if JiraJsonKeyConst.JQL_EXCLUDE.value in obj_query and obj_query[JiraJsonKeyConst.JQL_EXCLUDE.value] != "":
-            obj_query[JiraJsonKeyConst.JQL.value] = f"filter = {filter_id} and {obj_query[JiraJsonKeyConst.JQL_EXCLUDE.value]}"
+        if JiraJsonKeyConst.JQL_ISSUE_TYPE.value in obj_query and obj_query[JiraJsonKeyConst.JQL_ISSUE_TYPE.value] != "":
+            obj_query[JiraJsonKeyConst.JQL.value] = f"filter = {filter_id} and {obj_query[JiraJsonKeyConst.JQL_ISSUE_TYPE.value]}"
         columns = cur_jira_board_config[GeneralConstants.BOARD_COLUMNS.value]
     else:
         columns = obj_query[JiraJsonKeyConst.COLUMNS.value]
