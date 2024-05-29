@@ -91,8 +91,6 @@ try:
             csv_writer.writerow(obj_jira_data.csv_single_row_list.values())
     print('\n')
     print(f"Issues fetched: {len(all_jira_issues)} records")
-    # if jira_issues.total > 1000:
-    #     print('WARNING: This code only fetches top 1000 records returned by the query')
     print(f'CSV file {output_csv_file_fullpath} created...' + ' ' + str(datetime.now()))
 except Exception as e:
     print(f"Error : {e}")
