@@ -56,13 +56,13 @@ The extracted data can be used to generate insights which helps the team to effe
 ## :white_check_mark: Requirements ##
 
 -Before starting :checkered_flag:, you need to have following things
-  - jira package (jira==3.8.0) installed.
+  - Installed the required packages.
     - Mac
-      - Open terminal and install jira package
-        - `pip3 install jira`
+      - Open terminal, go to the project directory and install package using requirement.txt (you will find the requirement.txt under the project folder)
+        - `pip3 install -r requirement.txt`
     - Windows
       - Open command line and install jira package
-        - `pip install jira`
+        - `pip install -r requirement.txt`
   - Create your Personal Jira Access Token (for your/your companies jira instance) which will be used by the program
     - check this for reference on how to create personal token: [manage-api-tokens-for-your-atlassian-account](https://support.atlassian.com/atlassian-account/docs/manage-api-tokens-for-your-atlassian-account/) 
   - Creating and setting Environment variable for jira access token `jira_token` to save your Personal Jira Access Token. Check details [Setting Environment Variable](EnvVarDoc.md)
