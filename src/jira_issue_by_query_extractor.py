@@ -3,30 +3,16 @@ from datetime import datetime
 
 from jira import JIRA
 import os
-import json
 import yaml
 from credential.credential_manager import CredentialManager
-from utils.dateutil import DateUtil
-from constants import JiraJsonKeyConstants as JiraJsonKeyConst
 from constants import FileFolderNameConstants as FileFolderNameConst
 from constants import ConfigKeyConstants as ConfigKeyConst
-from constants import DateUtilConstants as DateUtilConst
-
-
-def get_config_folder_path() -> str:
-    exe_folder = os.path.dirname(__file__)
-    return str(os.path.join(os.path.dirname(exe_folder), FileFolderNameConst.CONFIG_FOLDERNAME.value))
-
-
-def get_output_folder_path() -> str:
-    exe_folder = os.path.dirname(__file__)
-    return str(os.path.join(os.path.dirname(exe_folder), FileFolderNameConst.OUTPUT_FOLDERNAME.value))
-
-
+import helper.jira_helper as jira_helper
 
 # ***** The Main code execution starts here ****
 try:
-    config_file_full_path = os.path.join(get_config_folder_path(), FileFolderNameConst.CONFIG_FILENAME.value)
+    exe_path = os.path.dirname(__file__)
+    config_file_full_path = jira_helper.get_config_file_path(exe_path, FileFolderNameConst.CONFIG_FILENAME.value)
     with open(config_file_full_path) as file:  # loading config file for this project
         config = yaml.safe_load(file)
     jira_url = config[ConfigKeyConst.JIRA_URL_KEY.value]
@@ -59,7 +45,7 @@ try:
         start_at += max_results
 
     print('Data extracted from Jira...')
-    output_folder_path = get_output_folder_path()
+    output_folder_path = jira_helper.get_output_folder_path(exe_path)
     os.makedirs(name=output_folder_path, exist_ok=True)
     output_csv_file_fullpath = os.path.join(output_folder_path, output_file_name)
     csv_single_row_list = {

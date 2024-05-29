@@ -4,89 +4,29 @@ from datetime import datetime
 from jira import JIRA
 import os
 import sys
-import json
 import yaml
-import requests
 
 from credential.credential_manager import CredentialManager
 from utils.dateutil import DateUtil
 from jira_projects.rawJiraDataBase import JiraDataBase
-from constants import JiraJsonKeyConstants as JiraJsonKeyConst
-from constants import FileFolderNameConstants as FileFolderNameConst
-from constants import ConfigKeyConstants as ConfigKeyConst
-from constants import DateUtilConstants as DateUtilConst
-from constants import GeneralConstants
-
-
-def get_config_folder_path() -> str:
-    exe_folder = os.path.dirname(__file__)
-    return str(os.path.join(os.path.dirname(exe_folder), FileFolderNameConst.CONFIG_FOLDERNAME.value))
-
-
-def get_output_folder_path() -> str:
-    exe_folder = os.path.dirname(__file__)
-    return str(os.path.join(os.path.dirname(exe_folder), FileFolderNameConst.OUTPUT_FOLDERNAME.value))
-
-
-def get_all_active_jira_query_names():
-    available_jira_queries = []
-    for query in jira_board_queries_config[JiraJsonKeyConst.BOARDS.value]:
-        if JiraJsonKeyConst.SHOW.value in query and not query[JiraJsonKeyConst.SHOW.value]:
-            continue
-        available_jira_queries.append(query[JiraJsonKeyConst.NAME.value])
-    return available_jira_queries
-
-
-def get_jira_query_by_name(name_of_query):
-    for query in jira_board_queries_config[JiraJsonKeyConst.BOARDS.value]:
-        if query[JiraJsonKeyConst.NAME.value].casefold() == name_of_query.casefold():
-            return query
-
-
-def get_jira_board_config_by_id(board_id):
-    jira_board_config = {}
-    board_columns = []
-    # Headers with Authorization using API token
-    headers = {
-        "Authorization": f"Bearer {jira_token}"  # Use Bearer token for API tokens
-    }
-    # URL for retrieving board configuration
-    board_config_url = f"{jira_url}/rest/agile/1.0/board/{board_id}/configuration"
-    response = requests.get(board_config_url, headers=headers)
-    response.raise_for_status()  # Raise an exception for non-200 status codes
-    # Parse JSON response if successful
-    board_config = json.loads(response.text)
-    for board_column in board_config['columnConfig']['columns']:
-        dict_column = {}
-        dict_column[JiraJsonKeyConst.COLUMN_NAME.value] = board_column["name"]
-        statuses = []
-        for status in board_column['statuses']:
-            response = requests.get(status['self'], headers=headers)
-            response.raise_for_status()  # Raise an exception for non-200 status codes
-            jira_status = json.loads(response.text)
-            statuses.append(jira_status['name'])
-        dict_column[JiraJsonKeyConst.STATUSES.value] = statuses
-        board_columns.append(dict_column)
-    jira_board_config[GeneralConstants.BOARD_COLUMNS.value] = board_columns
-    jira_board_config[GeneralConstants.FILTER_ID.value] = board_config["filter"]["id"]
-    jira_board_config[GeneralConstants.BOARD_NAME.value] = board_config["name"]
-    return jira_board_config
+from constants import JiraJsonKeyConstants as JiraJsonKeyConst, FileFolderNameConstants as FileFolderNameConst, ConfigKeyConstants as ConfigKeyConst, GeneralConstants
+import helper.jira_helper as jira_helper
 
 
 # ***** The Main code execution starts here ****
 try:
-    config_file_full_path = os.path.join(get_config_folder_path(), FileFolderNameConst.CONFIG_FILENAME.value)
+    exe_path = os.path.dirname(__file__)
+    config_file_full_path = jira_helper.get_config_file_path(exe_path, FileFolderNameConst.CONFIG_FILENAME.value)
     with open(config_file_full_path) as file:  # loading config file for this project
         config = yaml.safe_load(file)
-    jira_board_config_full_file_path = os.path.join(get_config_folder_path(),
-                                                       config[ConfigKeyConst.JIRA_BOARD_CONFIG_FILENAME.value])
+    jira_board_config_full_file_path = jira_helper.get_config_file_path(exe_path, config[ConfigKeyConst.JIRA_BOARD_CONFIG_FILENAME.value])
     with open(jira_board_config_full_file_path) as file:  # load jira board query configuration file
         jira_board_queries_config = yaml.safe_load(file)
     jira_url = config[ConfigKeyConst.JIRA_URL_KEY.value]
-    active_queries = get_all_active_jira_query_names()
+    active_queries = jira_helper.get_all_active_jira_query_names(jira_board_queries_config)
     print(f'List of Active Queries in the config are: {active_queries}')
     query_name = input('Write name of a Query to execute (from the above list): ')
-    obj_query = get_jira_query_by_name(name_of_query=query_name)
+    obj_query = jira_helper.get_jira_query_by_name(query_name, jira_board_queries_config)
     if obj_query is None:
         print('!!! Invalid Query Name provided. Exiting code !!!')
         sys.exit()
@@ -96,7 +36,7 @@ try:
 
     # check for board id, else use the columns from configuration file
     if obj_query[JiraJsonKeyConst.QUERY_JIRA_BOARD.value]:
-        cur_jira_board_config = get_jira_board_config_by_id(board_id=int(obj_query[JiraJsonKeyConst.BOARD_ID.value]))
+        cur_jira_board_config = jira_helper.get_jira_board_config_by_id(int(obj_query[JiraJsonKeyConst.BOARD_ID.value]), jira_token, jira_url)
         filter_id = cur_jira_board_config[GeneralConstants.FILTER_ID.value]
         if JiraJsonKeyConst.JQL_ISSUE_TYPE.value in obj_query and obj_query[JiraJsonKeyConst.JQL_ISSUE_TYPE.value] != "":
             obj_query[JiraJsonKeyConst.JQL.value] = f"filter = {filter_id} and {obj_query[JiraJsonKeyConst.JQL_ISSUE_TYPE.value]}"
@@ -141,7 +81,7 @@ try:
         start_at += max_results
 
     print('Data extracted from Jira...')
-    output_folder_path = get_output_folder_path()
+    output_folder_path = jira_helper.get_output_folder_path(exe_path)
     os.makedirs(name=output_folder_path, exist_ok=True)
     output_csv_file_fullpath = os.path.join(output_folder_path, obj_jira_data.file_name)
     with open(output_csv_file_fullpath, 'w', newline='') as csvfile:
