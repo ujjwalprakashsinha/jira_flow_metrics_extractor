@@ -35,6 +35,7 @@ class FileFolderNameConstants(Enum):
     TWIG_OUTPUT_FILE_POSTFIX = "_twig_jira_data.csv"
     COLUMN_OUTPUT_FILE_POSTFIX = "_column_jira_data.csv"
     CONFIG_FOLDERNAME = "config"
+    APP_LOG_FILENAME = "app.log"
 
 
 class ConfigKeyConstants(Enum):

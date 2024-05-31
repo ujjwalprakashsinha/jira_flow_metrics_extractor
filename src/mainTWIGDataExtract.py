@@ -4,6 +4,7 @@ from datetime import datetime
 import os
 import sys
 import yaml
+import logging
 
 from credential.credential_manager import CredentialManager
 from utils.dateutil import DateUtil
@@ -13,6 +14,8 @@ import helper.jira_helper as jira_helper
 
 # ***** The Main code execution starts here ****
 try:
+    logging.basicConfig(filename=FileFolderNameConst.APP_LOG_FILENAME.value, filemode="w", level=logging.INFO )
+    logger = logging.getLogger("__name__")
     exe_path = os.path.dirname(__file__)
     config_file_full_path = jira_helper.get_config_file_path(exe_path, FileFolderNameConst.CONFIG_FILENAME.value)
     with open(config_file_full_path) as file:  # loading config file for this project
@@ -51,7 +54,7 @@ try:
     jira_fields_needed = ["status", "created"]
     all_jira_issues = jira_helper.get_jira_issues(obj_jira_data.search_query, jira_fields_needed, jira_url, jira_token)
 
-    print('Data extracted from Jira...')
+    print('Extracting status change information...')
     output_folder_path = jira_helper.get_output_folder_path(exe_path)
     os.makedirs(name=output_folder_path, exist_ok=True)
     output_csv_file_fullpath = os.path.join(output_folder_path, obj_jira_data.file_name)
@@ -73,7 +76,7 @@ try:
                         mapped_column_current_issue_status = obj_jira_data.get_mapped_column_for_status(
                             current_status=item.toString)
                         if mapped_column_current_issue_status == '' or mapped_column_current_issue_status is None:
-                            print(f'Info: Status mapping missing for: {item.toString} | Issue ID: {obj_jira_data.csv_single_row_list[JiraDataBase._idColumnName]} | Change Date: {history.created}')
+                            logger.info(f'Info: Status mapping missing for: {item.toString} | Issue ID: {obj_jira_data.csv_single_row_list[JiraDataBase._idColumnName]} | Change Date: {history.created}')
                             break
 
                         obj_jira_data.set_board_column_value(mapped_column_for_status=mapped_column_current_issue_status,
@@ -89,8 +92,8 @@ try:
                     obj_jira_data.csv_single_row_list[column[JiraJsonKeyConst.COLUMN_NAME.value]])
 
             csv_writer.writerow(obj_jira_data.csv_single_row_list.values())
-    print('\n')
-    print(f"Issues fetched: {len(all_jira_issues)} records")
-    print(f'CSV file {output_csv_file_fullpath} created...' + ' ' + str(datetime.now()))
+    print(f"{len(all_jira_issues)} records prepared.")
+    print(f'OUTPUT File: {output_csv_file_fullpath}')
+    print(f"Please check {FileFolderNameConst.APP_LOG_FILENAME.value} file for info on missing status mapping in the record, if any.")
 except Exception as e:
     print(f"Error : {e}")
