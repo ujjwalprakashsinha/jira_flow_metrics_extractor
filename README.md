@@ -87,15 +87,14 @@ The extracted data can be used to generate insights which helps the team to effe
     jira_board_config_filename: jira_board_config.yaml 
     ```
 
-    - `jira_url` => the url of your jira instance
-
-    - `jira_token_env_varname` => for this code to execute, it requires your personal Jira token configured and set in the environment variable. The 'jira_token_env_varname' config setting should have the name of the name of the environment variable in which your personal Jira token resides.
-
-    - `output_date_format` => Check [Python Dates](https://www.w3schools.com/python/python_datetime.asp) for the options you have (or ask ChatGPT). Below are couple of examples
+    | Name  | Description | Default Value |
+    | :----:| :----:      | :---:         |
+    | `jira_url`| the url of your jira instance| None |
+    | `jira_token_env_varname`| for this code to execute, it requires your personal Jira token configured and set in the environment variable. The 'jira_token_env_varname' config setting should have the name of the name of the environment variable in which your personal Jira token resides.| `jira_toke` |
+    | `output_date_format`| Check [Python Dates](https://www.w3schools.com/python/python_datetime.asp) for the options you have (or ask ChatGPT). Below are couple of examples
         - `"%Y%m%d"`       for [TWiG by ActionableAgile](https://analytics.actionableagile.com/twig/index.html) 
-        - `"%d.%m.%Y"`     for standard excel operations
-    
-    - `jira_board_config_filename` => name of the configuration file to get jira board setting. This file should reside under config folder
+        - `"%d.%m.%Y"`     for standard excel operations | None |
+    | `jira_board_config_filename`| name of the configuration file to get jira board setting. This file should reside under config folder| None |
 
 2. Configuration of the jira board from which the data will be extracted
 
