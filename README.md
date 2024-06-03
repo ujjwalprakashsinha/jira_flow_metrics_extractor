@@ -64,8 +64,8 @@ The extracted data can be used to generate insights which helps the team to effe
       - Open command line, go to the project directory and install package using requirement.txt
         - `pip install -r requirement.txt`
   - Create your Personal Jira Access Token (for your/your companies jira instance) which will be used by the program
-    - check this for reference on how to create personal token: [manage-api-tokens-for-your-atlassian-account](https://support.atlassian.com/atlassian-account/docs/manage-api-tokens-for-your-atlassian-account/){:target="_blank"} 
-  - Creating and setting Environment variable for jira access token `jira_token` to save your Personal Jira Access Token. Check details [Setting Environment Variable](EnvVarDoc.md){:target="_blank"}
+    - check this for reference on how to create personal token: [manage-api-tokens-for-your-atlassian-account](https://support.atlassian.com/atlassian-account/docs/manage-api-tokens-for-your-atlassian-account/)  
+  - Creating and setting Environment variable for jira access token `jira_token` to save your Personal Jira Access Token. Check details [Setting Environment Variable](EnvVarDoc.md) 
   
 ## :robot: Configurations ##
 :pushpin: Please create 2 configuration files under `config` folder :file_folder: with below name and content. Update the config values to match your requirements.
@@ -92,7 +92,7 @@ The extracted data can be used to generate insights which helps the team to effe
     - `jira_token_env_varname` => for this code to execute, it requires your personal Jira token configured and set in the environment variable. The 'jira_token_env_varname' config setting should have the name of the name of the environment variable in which your personal Jira token resides.
 
     - `output_date_format` => Check [Python Dates](https://www.w3schools.com/python/python_datetime.asp) for the options you have (or ask ChatGPT). Below are couple of examples
-        - `"%Y%m%d"`       for [TWiG by ActionableAgile](https://analytics.actionableagile.com/twig/index.html){:target="_blank"}
+        - `"%Y%m%d"`       for [TWiG by ActionableAgile](https://analytics.actionableagile.com/twig/index.html) 
         - `"%d.%m.%Y"`     for standard excel operations
     
     - `jira_board_config_filename` => name of the configuration file to get jira board setting. This file should reside under config folder
@@ -120,7 +120,7 @@ The extracted data can be used to generate insights which helps the team to effe
         - You can speific the jql with issuetype (exclude or include the issue type which are needed for cycle time).
         - Please ensure that the JQL does not contain double quotes (") and are replaced by single quotes (')
    
-   - `board_id` => the jira board id, for example (https://jira.abc.com/secure/RapidBoard.jspa?rapidView=12345){:target="_blank"} the number after rapidview. This board info will be used for getting issues and related board workflow.
+   - `board_id` => the jira board id, for example (https://jira.abc.com/secure/RapidBoard.jspa?rapidView=12345)  the number after rapidview. This board info will be used for getting issues and related board workflow.
    
    - `show` => this is an optional value and can be set to `show: false` or `show: true`. This value ensures (non) visibility of this listing when the program is executed.
 
