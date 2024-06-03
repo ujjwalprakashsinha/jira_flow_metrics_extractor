@@ -115,7 +115,7 @@ The extracted data can be used to generate insights which helps the team to effe
     |`query_jira_board`|value should be `true`. It specifies that the program will fetch jira query (jql) and board workflow from the specified board id.|None|
     |`jql_issue_type`| Specify the part of jira JQL which defined the type of issues to select or exclude. If this attribute is not mentioned then all issue types from the board are retrieved. <br> * You can speific the jql with issuetype (exclude or include the issue type which are needed for cycle time). <br> * Please ensure that the JQL does not contain double quotes (") and are replaced by single quotes (')|None|
     |`board_id`|the jira board id, for example (https://jira.abc.com/secure/RapidBoard.jspa?rapidView=12345)  the number after rapidview. This board info will be used for getting issues and related board workflow.|None|
-    |`show`|this is an optional value and can be set to `show: false` or `show: true`. This value ensures (non) visibility of this listing when the program is executed.|None|
+    |`show`|this is an optional value and can be set to `show: false` or `show: true`. This value ensures (non) visibility of this listing when the program is executed.|true|
 
 ## :checkered_flag: Starting ##
 
