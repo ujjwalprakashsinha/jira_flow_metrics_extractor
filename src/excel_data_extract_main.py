@@ -88,7 +88,7 @@ try:
 
             obj_jira_data.clear_later_workflow_column_value(mapped_column_final_issue_status)
             # add the change date (needed format) to the csv_row_list object and add to csv
-            date_utility = DateUtil(DateUtilConst.DATE_FORMAT_STANDARD.value)
+            date_utility = DateUtil(DateUtilConst.DATE_FORMAT_EXCEL.value)
             for column in obj_jira_data.jira_board_columns:
                 obj_jira_data.csv_single_row_list[column[JiraJsonKeyConst.COLUMN_NAME.value]] = date_utility.convert_jira_date(
                     obj_jira_data.csv_single_row_list[column[JiraJsonKeyConst.COLUMN_NAME.value]])

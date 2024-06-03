@@ -25,8 +25,9 @@ class JiraJsonKeyConstants(Enum):
 
 
 class DateUtilConstants(Enum):
-    DATE_FORMAT_TWIG = "yyyymmdd"
-    DATE_FORMAT_STANDARD = "dd.mm.yyyy"
+    DATE_FORMAT_JIRA = "%Y-%m-%dT%H:%M:%S.%f%z"
+    DATE_FORMAT_TWIG = "%Y%m%d"
+    DATE_FORMAT_EXCEL = "%d.%m.%Y"
 
 
 class FileFolderNameConstants(Enum):
