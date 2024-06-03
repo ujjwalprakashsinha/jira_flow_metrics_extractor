@@ -88,13 +88,11 @@ The extracted data can be used to generate insights which helps the team to effe
     ```
 
     | Name  | Description | Default Value |
-    | :----:| :----:      | :---:         |
+    | :----| :----      | :---         |
     | `jira_url`| the url of your jira instance| None |
-    | `jira_token_env_varname`| for this code to execute, it requires your personal Jira token configured and set in the environment variable. The 'jira_token_env_varname' config setting should have the name of the name of the environment variable in which your personal Jira token resides.| `jira_toke` |
-    | `output_date_format`| Check [Python Dates](https://www.w3schools.com/python/python_datetime.asp) for the options you have (or ask ChatGPT). Below are couple of examples
-        - `"%Y%m%d"`       for [TWiG by ActionableAgile](https://analytics.actionableagile.com/twig/index.html) 
-        - `"%d.%m.%Y"`     for standard excel operations | None |
-    | `jira_board_config_filename`| name of the configuration file to get jira board setting. This file should reside under config folder| None |
+    | `jira_token_env_varname`| Name of the environment variable which has your personal Jira token. For this program to execute, it requires your personal Jira token configured and set in the environment variable. The 'jira_token_env_varname' config setting should have the name of the name of the environment variable in which your personal Jira token resides.| None |
+    | `output_date_format`| Check [Python Dates](https://www.w3schools.com/python/python_datetime.asp) for the options you have (or ask ChatGPT). For example <br> * `"%Y%m%d"` for [TWiG by ActionableAgile](https://analytics.actionableagile.com/twig/index.html) <br> * `"%d.%m.%Y"` for standard excel operations | None |
+    | `jira_board_config_filename`| Name of the configuration file to get jira board related setting. This file should reside under config folder| None |
 
 2. Configuration of the jira board from which the data will be extracted
 
@@ -111,17 +109,13 @@ The extracted data can be used to generate insights which helps the team to effe
           board_id: 11102
       ```
 
-   - `name` => Short name for the board configured. This will appear when you execute code as one of the options
-
-   - `query_jira_board` => value should be `true`. It specifies that the program will fetch jira query (jql) and board workflow from the specified board id.
-
-   - `jql_issue_type` => part of jira JQL which defined the type of issues to select or exclude. If this attribute is not mentioned then all issue types from the board are retrieved. 
-        - You can speific the jql with issuetype (exclude or include the issue type which are needed for cycle time).
-        - Please ensure that the JQL does not contain double quotes (") and are replaced by single quotes (')
-   
-   - `board_id` => the jira board id, for example (https://jira.abc.com/secure/RapidBoard.jspa?rapidView=12345)  the number after rapidview. This board info will be used for getting issues and related board workflow.
-   
-   - `show` => this is an optional value and can be set to `show: false` or `show: true`. This value ensures (non) visibility of this listing when the program is executed.
+    | Name  | Description | Default Value |
+    | :----| :----      | :---         |
+    |`name`|Short name for the board configured. This will appear when you execute code as one of the options|None|
+    |`query_jira_board`|value should be `true`. It specifies that the program will fetch jira query (jql) and board workflow from the specified board id.|None|
+    |`jql_issue_type`| Specify the part of jira JQL which defined the type of issues to select or exclude. If this attribute is not mentioned then all issue types from the board are retrieved. <br> * You can speific the jql with issuetype (exclude or include the issue type which are needed for cycle time). <br> * Please ensure that the JQL does not contain double quotes (") and are replaced by single quotes (')|None|
+    |`board_id`|the jira board id, for example (https://jira.abc.com/secure/RapidBoard.jspa?rapidView=12345)  the number after rapidview. This board info will be used for getting issues and related board workflow.|None|
+    |`show`|this is an optional value and can be set to `show: false` or `show: true`. This value ensures (non) visibility of this listing when the program is executed.|None|
 
 ## :checkered_flag: Starting ##
 
