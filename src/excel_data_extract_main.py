@@ -4,16 +4,19 @@ from datetime import datetime
 import os
 import sys
 import yaml
+import logging
 
 from credential.credential_manager import CredentialManager
 from utils.dateutil import DateUtil
 from jira_projects.rawJiraDataBase import JiraDataBase
-from constants import JiraJsonKeyConstants as JiraJsonKeyConst, FileFolderNameConstants as FileFolderNameConst, ConfigKeyConstants as ConfigKeyConst, DateUtilConstants as DateUtilConst, GeneralConstants
+from constants import JiraJsonKeyConstants as JiraJsonKeyConst, FileFolderNameConstants as FileFolderNameConst, ConfigKeyConstants as ConfigKeyConst, GeneralConstants, DateUtilConstants as DateUtilConst 
 import helper.jira_helper as jira_helper
 
 
 # ***** The Main code execution starts here ****
 try:
+    logging.basicConfig(filename=FileFolderNameConst.APP_LOG_FILENAME.value, filemode="w", level=logging.INFO )
+    logger = logging.getLogger(__name__)
     exe_path = os.path.dirname(__file__)
     config_file_full_path = jira_helper.get_config_file_path(exe_path, FileFolderNameConst.CONFIG_FILENAME.value)
     with open(config_file_full_path) as file:  # loading config file for this project
@@ -22,11 +25,16 @@ try:
     with open(jira_board_config_full_file_path) as file:  # load jira board query configuration file
         jira_board_queries_config = yaml.safe_load(file)
     jira_url = config[ConfigKeyConst.JIRA_URL_KEY.value]
-    active_queries = jira_helper.get_all_active_jira_query_names(jira_board_queries_config)
-    print(f'List of Active Queries in the config are: {active_queries}')
-    query_name = input('Write name of a Query to execute (from the above list): ')
-    obj_query = jira_helper.get_jira_query_by_name(query_name, jira_board_queries_config)
-    if obj_query is None:
+    active_boards = jira_helper.get_all_active_jira_query_names(jira_board_queries_config)
+    print('-----------------------------------------')
+    print('List of Active Boards in the config are:')
+    print('-----------------------------------------')
+    for jira_board in active_boards:
+        print(f"{active_boards.index(jira_board)}. {jira_board}")
+    print('-----------------------------------------')
+    input_index: int =  int(input('Type the number for the option (from the above list): '))
+    obj_board = jira_helper.get_jira_query_by_name(active_boards[input_index], jira_board_queries_config)
+    if obj_board is None:
         print('!!! Invalid Query Name provided. Exiting code !!!')
         sys.exit()
 
@@ -34,19 +42,19 @@ try:
     jira_token = cred_manager.get_credential(config[ConfigKeyConst.JIRA_TOKEN_VARNAME_KEY.value])
 
     # check for board id, else use the columns from configuration file
-    if obj_query[JiraJsonKeyConst.QUERY_JIRA_BOARD.value]:
-        cur_jira_board_config = jira_helper.get_jira_board_config_by_id(int(obj_query[JiraJsonKeyConst.BOARD_ID.value]), jira_token, jira_url)
+    if obj_board[JiraJsonKeyConst.QUERY_JIRA_BOARD.value]:
+        cur_jira_board_config = jira_helper.get_jira_board_config_by_id(int(obj_board[JiraJsonKeyConst.BOARD_ID.value]), jira_token, jira_url)
         filter_id = cur_jira_board_config[GeneralConstants.FILTER_ID.value]
-        if JiraJsonKeyConst.JQL_ISSUE_TYPE.value in obj_query and obj_query[JiraJsonKeyConst.JQL_ISSUE_TYPE.value] != "":
-            obj_query[JiraJsonKeyConst.JQL.value] = f"filter = {filter_id} and {obj_query[JiraJsonKeyConst.JQL_ISSUE_TYPE.value]}"
+        if JiraJsonKeyConst.JQL_ISSUE_TYPE.value in obj_board and obj_board[JiraJsonKeyConst.JQL_ISSUE_TYPE.value] != "":
+            obj_board[JiraJsonKeyConst.JQL.value] = f"filter = {filter_id} and {obj_board[JiraJsonKeyConst.JQL_ISSUE_TYPE.value]}"
         columns = cur_jira_board_config[GeneralConstants.BOARD_COLUMNS.value]
     else:
-        columns = obj_query[JiraJsonKeyConst.COLUMNS.value]
-    output_file_name = obj_query[JiraJsonKeyConst.NAME.value] + FileFolderNameConst.COLUMN_OUTPUT_FILE_POSTFIX.value
-    obj_jira_data = JiraDataBase(search_query=obj_query[JiraJsonKeyConst.JQL.value], jira_board_columns=columns,
+        columns = obj_board[JiraJsonKeyConst.COLUMNS.value]
+    output_file_name = obj_board[JiraJsonKeyConst.NAME.value] + FileFolderNameConst.COLUMN_OUTPUT_FILE_POSTFIX.value
+    obj_jira_data = JiraDataBase(search_query=obj_board[JiraJsonKeyConst.JQL.value], jira_board_columns=columns,
                                  output_file_name=output_file_name)
 
-    print(f'Please wait, we are preparing data for "{obj_query[JiraJsonKeyConst.NAME.value]}"')
+    print(f'Please wait, we are preparing data for "{obj_board[JiraJsonKeyConst.NAME.value]}"')
     
     # NEW CODE
     additional_columns = ["issuetype", "summary", "jiralink", "status", "Project Key", "Project Name",  "Story Point"] # customfield_10002 = Story Points
@@ -56,7 +64,7 @@ try:
     jira_fields_needed = ["status", "created", "issuetype", "summary", "project", "customfield_10002"] # customfield_10002 = Story Points
     all_jira_issues = jira_helper.get_jira_issues(obj_jira_data.search_query, jira_fields_needed, jira_url, jira_token)
 
-    print('Data extracted from Jira...')
+    print('Extracting status change information...')
     output_folder_path = jira_helper.get_output_folder_path(exe_path)
     os.makedirs(name=output_folder_path, exist_ok=True)
     output_csv_file_fullpath = os.path.join(output_folder_path, obj_jira_data.file_name)
@@ -78,7 +86,7 @@ try:
                         mapped_column_current_issue_status = obj_jira_data.get_mapped_column_for_status(
                             current_status=item.toString)
                         if mapped_column_current_issue_status == '' or mapped_column_current_issue_status is None:
-                            print(f'Info: Status mapping missing for: {item.toString} | Issue ID: {obj_jira_data.csv_single_row_list[JiraDataBase._idColumnName]} | Change Date: {history.created}')
+                            logger.info(f'Status mapping missing for: {item.toString} | Issue ID: {obj_jira_data.csv_single_row_list[JiraDataBase._idColumnName]} | Change Date: {history.created}')
                             break
 
                         obj_jira_data.set_board_column_value(mapped_column_for_status=mapped_column_current_issue_status,
@@ -103,8 +111,8 @@ try:
             #obj_jira_data.set_board_column_value("summary", jira_issue.fields.summary )
             # write to the object
             csv_writer.writerow(obj_jira_data.csv_single_row_list.values())
-    print('\n')
-    print(f"Issues fetched: {len(all_jira_issues)} records")
-    print(f'CSV file {output_csv_file_fullpath} created...' + ' ' + str(datetime.now()))
+    print(f"{len(all_jira_issues)} records prepared.")
+    print(f'Output File: {output_csv_file_fullpath}')
+    print(f"Please check '{FileFolderNameConst.APP_LOG_FILENAME.value}' file for info on missing status mapping in the record, if any.")
 except Exception as e:
     print(f"Error : {e}")
