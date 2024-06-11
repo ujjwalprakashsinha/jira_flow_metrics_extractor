@@ -11,6 +11,8 @@ from utils.dateutil import DateUtil
 from jira_projects.rawJiraDataBase import JiraDataBase
 from constants import JiraJsonKeyConstants as JiraJsonKeyConst, FileFolderNameConstants as FileFolderNameConst, ConfigKeyConstants as ConfigKeyConst, GeneralConstants
 import helper.jira_helper as jira_helper
+#import helper.flow_metrics_helper as fm_helper
+
 
 # ***** The Main code execution starts here ****
 try:
@@ -20,7 +22,7 @@ try:
     config_file_full_path = jira_helper.get_config_file_path(exe_path, FileFolderNameConst.CONFIG_FILENAME.value)
     with open(config_file_full_path) as file:  # loading config file for this project
         config = yaml.safe_load(file)
-    jira_board_config_full_file_path = jira_helper.get_config_file_path(exe_path, config[ConfigKeyConst.JIRA_BOARD_CONFIG_FILENAME.value])
+    jira_board_config_full_file_path = jira_helper.get_config_file_path(exe_path, config[ConfigKeyConst.JIRA_BOARD_CONFIG_FILENAME_KEY.value])
     with open(jira_board_config_full_file_path) as file:  # load jira board query configuration file
         jira_board_queries_config = yaml.safe_load(file)
     jira_url = config[ConfigKeyConst.JIRA_URL_KEY.value]
@@ -99,5 +101,13 @@ try:
     print(f"{len(all_jira_issues)} records prepared.")
     print(f'Output File: {output_csv_file_fullpath}')
     print(f"Please check {FileFolderNameConst.APP_LOG_FILENAME.value} file for info on missing status mapping in the record, if any.")
+
+    # ------------ Generate flow metric report if true -----------
+    if(config[ConfigKeyConst.GENERATE_FLOW_METRICS_REPORT_KEY.value]):
+        start_column_name =  columns[0][JiraJsonKeyConst.COLUMN_NAME.value]
+        done_column_name = columns[len(columns)-1][JiraJsonKeyConst.COLUMN_NAME.value]
+        date_format = config[ConfigKeyConst.OUTPUT_DATE_FORMAT_KEY.value]
+        #fm_helper.generate_flow_metrics_report(output_csv_file_fullpath, start_column_name, done_column_name,GeneralConstants.ID_COLUMN_NAME.value, date_format)
+    # -------------
 except Exception as e:
     print(f"Error : {e}")

@@ -4,6 +4,7 @@ class GeneralConstants(Enum):
     BOARD_COLUMNS = "board_columns"
     FILTER_ID = "filter_id"
     BOARD_NAME = "board_name"
+    ID_COLUMN_NAME = "ID"
 
 class JiraJsonKeyConstants(Enum):
     BOARDS = "boards"
@@ -43,4 +44,6 @@ class ConfigKeyConstants(Enum):
     JIRA_URL_KEY = "jira_url"
     JIRA_TOKEN_VARNAME_KEY = "jira_token_env_varname"
     OUTPUT_DATE_FORMAT_KEY = "output_date_format"
-    JIRA_BOARD_CONFIG_FILENAME = "jira_board_config_filename"
+    JIRA_BOARD_CONFIG_FILENAME_KEY = "jira_board_config_filename"
+    JIRA_INSTANCE_KEY = "jira_instance"
+    GENERATE_FLOW_METRICS_REPORT_KEY =  "generate_flow_metrics_report"

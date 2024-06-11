@@ -1,8 +1,8 @@
-from constants import JiraJsonKeyConstants as JiraJsonKeyConst
+from constants import JiraJsonKeyConstants as JiraJsonKeyConst, GeneralConstants as GeneralConst
 
 
 class JiraDataBase:
-    _idColumnName = 'ID'
+    _idColumnName = GeneralConst.ID_COLUMN_NAME.value
 
     def __init__(self, search_query, jira_board_columns, output_file_name):
         self.file_name: str = output_file_name
