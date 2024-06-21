@@ -3,7 +3,7 @@ import json
 import requests
 from jira import JIRA
 from tqdm import tqdm
-from constants import JiraJsonKeyConstants as JiraJsonKeyConst, FileFolderNameConstants as FileFolderNameConst, GeneralConstants as GeneralConst
+from helper.constants import JiraJsonKeyConstants as JiraJsonKeyConst, FileFolderNameConstants as FileFolderNameConst, GeneralConstants as GeneralConst
 
 class JiraWorkItem:
     _idColumnName = GeneralConst.ID_COLUMN_NAME.value

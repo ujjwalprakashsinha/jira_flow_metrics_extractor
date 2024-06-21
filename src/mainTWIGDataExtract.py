@@ -6,10 +6,10 @@ import sys
 import yaml
 import logging
 
-from credential.credential_manager import CredentialManager
-from utils.dateutil import DateUtil
+from helper.credential.credential_manager import CredentialManager
+from helper.utils.dateutil import DateUtil
 from helper.jira_helper import JiraWorkItem
-from constants import JiraJsonKeyConstants as JiraJsonKeyConst, FileFolderNameConstants as FileFolderNameConst, ConfigKeyConstants as ConfigKeyConst, GeneralConstants as GeneralConst
+from helper.constants import JiraJsonKeyConstants as JiraJsonKeyConst, FileFolderNameConstants as FileFolderNameConst, ConfigKeyConstants as ConfigKeyConst, GeneralConstants as GeneralConst
 import helper.jira_helper as jira_helper
 #import helper.flow_metrics_helper as fm_helper
 
@@ -40,7 +40,7 @@ try:
         sys.exit()
 
     cred_manager = CredentialManager()
-    jira_token = cred_manager.get_credential(config[ConfigKeyConst.JIRA_TOKEN_VARNAME_KEY.value])
+    jira_token = cred_manager.get_credential(config[ConfigKeyConst.JIRA_TOKEN_CONFIG_KEY.value])
 
     # check for board id, else use the columns from configuration file
     if obj_board[JiraJsonKeyConst.QUERY_JIRA_BOARD.value]:
@@ -109,7 +109,7 @@ try:
     print(f"Please check '{FileFolderNameConst.APP_LOG_FILENAME.value}' file for info on missing status mapping in the record, if any.")
 
     # ------------ Generate flow metric report if true -----------
-    if(config[ConfigKeyConst.GENERATE_FLOW_METRICS_REPORT_KEY.value]):
+    if(config.get(ConfigKeyConst.GENERATE_FLOW_METRICS_REPORT_KEY.value)):
         start_column_name =  columns[1][JiraJsonKeyConst.COLUMN_NAME.value]
         done_column_name = columns[len(columns)-1][JiraJsonKeyConst.COLUMN_NAME.value]
         date_format = config[ConfigKeyConst.OUTPUT_DATE_FORMAT_KEY.value]

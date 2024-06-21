@@ -6,10 +6,10 @@ import sys
 import yaml
 import logging
 
-from credential.credential_manager import CredentialManager
-from utils.dateutil import DateUtil
+from helper.credential.credential_manager import CredentialManager
+from helper.utils.dateutil import DateUtil
 from helper.jira_helper import JiraWorkItem
-from constants import JiraJsonKeyConstants as JiraJsonKeyConst, FileFolderNameConstants as FileFolderNameConst, ConfigKeyConstants as ConfigKeyConst, GeneralConstants as GeneralConst, DateUtilConstants as DateUtilConst 
+from helper.constants import JiraJsonKeyConstants as JiraJsonKeyConst, FileFolderNameConstants as FileFolderNameConst, ConfigKeyConstants as ConfigKeyConst, GeneralConstants as GeneralConst, DateUtilConstants as DateUtilConst 
 import helper.jira_helper as jira_helper
 
 
@@ -39,7 +39,7 @@ try:
         sys.exit()
 
     cred_manager = CredentialManager()
-    jira_token = cred_manager.get_credential(config[ConfigKeyConst.JIRA_TOKEN_VARNAME_KEY.value])
+    jira_token = cred_manager.get_credential(config[ConfigKeyConst.JIRA_TOKEN_CONFIG_KEY.value])
 
     # check for board id, else use the columns from configuration file
     if obj_board[JiraJsonKeyConst.QUERY_JIRA_BOARD.value]:
