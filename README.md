@@ -56,18 +56,18 @@ The extracted data can be used to generate insights which helps the team to effe
 ## :white_check_mark: Requirements ##
 
 -Before starting :checkered_flag:, you need to have following things
-  - ** Install the required packages **
+  - **Install the required packages**
     - Mac
       - Open terminal, go to the project directory and install package using requirement.txt (you will find the requirement.txt under the project folder)
         - `pip3 install -r requirement.txt`
     - Windows
       - Open command line, go to the project directory and install package using requirement.txt
         - `pip install -r requirement.txt`
-  - ** Create Personal Jira Access Token **: create your personal jira access token (from your jira instance)
+  - **Create Personal Jira Access Token**: create your personal jira access token (from your jira instance)
     - check this for reference on how to create personal token: [manage-api-tokens-for-your-atlassian-account](https://support.atlassian.com/atlassian-account/docs/manage-api-tokens-for-your-atlassian-account/)  
-  - ** Store Jira Token **: you can either store the jira token in your machine's environment variable or as plain text in this code's configuration file.
-    - ** Store in Environment Variable **: Creating and setting Environment variable for jira access token `jira_token` to save your Personal Jira Access Token. Check details [Setting Environment Variable](EnvVarDoc.md) 
-    - ** Storing in application configuration file **: details provided in the configuration section.
+  - **Store Jira Token**: you can either store the jira token in your machine's environment variable or as plain text in this code's configuration file.
+    - **Store in Environment Variable**: Creating and setting Environment variable for jira access token `jira_token` to save your Personal Jira Access Token. Check details [Setting Environment Variable](EnvVarDoc.md) 
+    - **Storing in application configuration file**: details provided in the configuration section.
   
 ## :robot: Configurations ##
 :pushpin: Please create 2 configuration files under `config` folder :file_folder: with below name and content. Update the config values to match your requirements.
