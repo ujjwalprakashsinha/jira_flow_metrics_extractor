@@ -1,10 +1,12 @@
 # How to connect to JIRA?
 jira_url: https://jira.abc.com # the url of your jira instance
-jira_token_env_varname: jira_token
-# jira_token_env_varname: for this code to execute, it requires your personal Jira token configured and set in the environment variable. 
-# The 'jira_token_env_varname' config setting should have the name of the name of the environment variable in which your personal Jira token resides.
+
+jira_token_config: 
+  mode: env_var # env_var or string
+  value: jira_token # if (mode = env_var) then environment variable name. if (mode = string) then personal jira token value.
 
 # output date format
-output_date_format: "%Y%m%d" # the 2 support date formates are "%Y%m%d" & %d.%m.%Y which will be used for the final output file
+output_date_format: "%d/%m/%Y" # all python supported date format
 #jira board configuration file name
 jira_board_config_filename: jira_board_config.yaml 
+generate_flow_metrics_report: false # true or false based on if the flow metrics reports need to be generated

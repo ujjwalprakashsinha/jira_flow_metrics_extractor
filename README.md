@@ -56,16 +56,18 @@ The extracted data can be used to generate insights which helps the team to effe
 ## :white_check_mark: Requirements ##
 
 -Before starting :checkered_flag:, you need to have following things
-  - Installed the required packages.
+  - ** Install the required packages **
     - Mac
       - Open terminal, go to the project directory and install package using requirement.txt (you will find the requirement.txt under the project folder)
         - `pip3 install -r requirement.txt`
     - Windows
       - Open command line, go to the project directory and install package using requirement.txt
         - `pip install -r requirement.txt`
-  - Create your Personal Jira Access Token (for your/your companies jira instance) which will be used by the program
+  - ** Create Personal Jira Access Token **: create your personal jira access token (from your jira instance)
     - check this for reference on how to create personal token: [manage-api-tokens-for-your-atlassian-account](https://support.atlassian.com/atlassian-account/docs/manage-api-tokens-for-your-atlassian-account/)  
-  - Creating and setting Environment variable for jira access token `jira_token` to save your Personal Jira Access Token. Check details [Setting Environment Variable](EnvVarDoc.md) 
+  - ** Store Jira Token **: you can either store the jira token in your machine's environment variable or as plain text in this code's configuration file.
+    - ** Store in Environment Variable **: Creating and setting Environment variable for jira access token `jira_token` to save your Personal Jira Access Token. Check details [Setting Environment Variable](EnvVarDoc.md) 
+    - ** Storing in application configuration file **: details provided in the configuration section.
   
 ## :robot: Configurations ##
 :pushpin: Please create 2 configuration files under `config` folder :file_folder: with below name and content. Update the config values to match your requirements.
@@ -75,24 +77,29 @@ The extracted data can be used to generate insights which helps the team to effe
 
     File : `config/config.yaml`
     ```
-    # How to connect to JIRA?
+   # How to connect to JIRA?
     jira_url: https://jira.abc.com # the url of your jira instance
-    jira_token_env_varname: jira_token
-    # jira_token_env_varname: for this code to execute, it requires your personal Jira token configured and set in the environment variable. 
-    # The 'jira_token_env_varname' config setting should have the name of the name of the environment variable in which your personal Jira token resides.
+
+    jira_token_config: 
+      mode: env_var # env_var or string
+      value: jira_token # if (mode = env_var) then environment variable name. if (mode = string) then personal jira token value.
 
     # output date format
-    output_date_format: "%Y%m%d" # all python supported date formates are including "%Y%m%d" (for TWiG) & "%d.%m.%Y" (standard excel) which will be used for the final output file
+    output_date_format: "%d/%m/%Y" # all python supported date format
     #jira board configuration file name
     jira_board_config_filename: jira_board_config.yaml 
+    generate_flow_metrics_report: false # true or false based on if the flow metrics reports need to be generated
     ```
 
     | Name  | Description | Default Value |
     | :----| :----      | :---         |
     | `jira_url`| the url of your jira instance| None |
-    | `jira_token_env_varname`| Name of the environment variable which has your personal Jira token. For this program to execute, it requires your personal Jira token configured and set in the environment variable. The 'jira_token_env_varname' config setting should have the name of the name of the environment variable in which your personal Jira token resides.| None |
+    | `jira_token_config`| Jira token related configuration settings| None |
+    | `mode`| Specifies the mode for stoarge for the jira token. It can either be set to `env_var` if the token is saved in your machine's environment variable or `string` if you want to store it in this configuration file. | None |
+    | `value`| It should either specify the environment variable name if `mode: env_var` or the value of your jira token if `mode: string` | None |
     | `output_date_format`| Check [Python Dates](https://www.w3schools.com/python/python_datetime.asp) for the options you have (or ask ChatGPT). For example <br> * `"%Y%m%d"` for [TWiG by ActionableAgile](https://analytics.actionableagile.com/twig/index.html) <br> * `"%d.%m.%Y"` for standard excel operations | None |
     | `jira_board_config_filename`| Name of the configuration file to get jira board related setting. This file should reside under config folder| None |
+    | `generate_flow_metrics_report`| This feature of generating Flow Graphs is still under construction, so either omit/remove this or set it to `false`. | false |
 
 2. Configuration of the jira board from which the data will be extracted
 

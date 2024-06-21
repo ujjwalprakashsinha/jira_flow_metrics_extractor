@@ -14,4 +14,4 @@ class CredentialManager:
         elif token_config.get(ConfigKeyConstants.JIRA_TOKEN_CONFIG_MODE_KEY.value) == ConfigKeyConstants.JIRA_TOKEN_CONFIG_MODE_STRING.value:
             return token_config.get(ConfigKeyConstants.JIRA_TOKEN_CONFIG_VALUE_KEY.value)
         else:
-            raise Exception("Jira credential info not correctly provided, please check for configuration settings")
+            raise Exception("Jira credential configurations has not been correctly provided, please check for configuration settings")
