@@ -66,7 +66,7 @@ The extracted data can be used to generate insights which helps the team to effe
   - **Create Personal Jira Access Token**: create your personal jira access token (from your jira instance)
     - check this for reference on how to create personal token: [manage-api-tokens-for-your-atlassian-account](https://support.atlassian.com/atlassian-account/docs/manage-api-tokens-for-your-atlassian-account/)  
   - **Store Jira Token**: you can either store the jira token in your machine's environment variable or as plain text in this code's configuration file.
-    - **Store in Environment Variable**: Set an environment variable on your machine to store your jira token value. Please remember the name of the environment variable (for example: `jira_token`) which will be used in the application configuration settings. Check details for setting -> [Setting Environment Variable](EnvVarDoc.md) 
+    - **Store in Environment Variable**: Set an environment variable on your machine to store your jira token value. Please remember the name of the environment variable (for example: `jira_token`) which will be used in the application configuration settings. Check details -> [Setting Environment Variable](EnvVarDoc.md) 
     - **Storing in application configuration file**: details provided in the configuration section.
   
 ## :robot: Configurations ##
