@@ -19,8 +19,9 @@ try:
     cred_manager = CredentialManager()
     jira_token = cred_manager.get_credential(config[ConfigKeyConst.JIRA_TOKEN_VARNAME_KEY.value])
     output_file_name = "Six_Bug_Raw_Data.csv" 
-
+    
     search_query = "issuetype = Bug and statusCategory in ('To Do', 'In Progress')" # the search query
+    #search_query = "filter = 27620 AND resolutiondate >= -300d AND resolutiondate >= 2024-06-02 AND resolutiondate < 2024-06-09" # the search query
 
     jira_fields_needed = ["status", "created", "summary", "project", "customfield_10002", "customfield_11115", "priority"] # customfield_10002 = Story Points
     all_jira_issues = jira_helper.get_jira_issues(search_query, jira_fields_needed, jira_url, jira_token, issue_history_needed=False)

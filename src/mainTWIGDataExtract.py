@@ -74,19 +74,19 @@ try:
             # (exclude columns with no mapped status on jira board like backlog in Kanban board sometime)
             obj_jira_data.csv_single_row_list[obj_jira_data.get_first_column_having_mapped_status()] = jira_issue.fields.created
             obj_jira_data.set_issue_id(jira_issue.key)
-            mapped_column_final_issue_status = obj_jira_data.get_mapped_column_for_status(
+            mapped_column_final_issue_status = obj_jira_data.get_mapped_csvcolumn_for_status(
                 current_status=jira_issue.fields.status.name)
             for history in jira_issue.changelog.histories:
                 for item in history.items:
                     if item.field == "status" and item.toString != item.fromString :  # checking for status change in the history & that status did not change to same
-                        mapped_column_current_issue_status = obj_jira_data.get_mapped_column_for_status(
+                        mapped_column_current_issue_status = obj_jira_data.get_mapped_csvcolumn_for_status(
                             current_status=item.toString)
                         if mapped_column_current_issue_status == '' or mapped_column_current_issue_status is None:
                             logger.info(f'Status mapping missing for: {item.toString} | Issue ID: {obj_jira_data.csv_single_row_list[JiraDataBase._idColumnName]} | Change Date: {history.created}')
                             break
 
-                        obj_jira_data.set_board_column_value(mapped_column_for_status=mapped_column_current_issue_status,
-                                                       status_change_date=history.created)
+                        obj_jira_data.set_value_for_csvcolumn(mapped_csvcolumn_for_field=mapped_column_current_issue_status,
+                                                       new_value=history.created)
                         obj_jira_data.clear_later_workflow_column_value(
                             mapped_column_for_status=mapped_column_current_issue_status)
 
@@ -104,10 +104,10 @@ try:
 
     # ------------ Generate flow metric report if true -----------
     if(config[ConfigKeyConst.GENERATE_FLOW_METRICS_REPORT_KEY.value]):
-        start_column_name =  columns[0][JiraJsonKeyConst.COLUMN_NAME.value]
+        start_column_name =  columns[1][JiraJsonKeyConst.COLUMN_NAME.value]
         done_column_name = columns[len(columns)-1][JiraJsonKeyConst.COLUMN_NAME.value]
         date_format = config[ConfigKeyConst.OUTPUT_DATE_FORMAT_KEY.value]
-        #fm_helper.generate_flow_metrics_report(output_csv_file_fullpath, start_column_name, done_column_name,GeneralConstants.ID_COLUMN_NAME.value, date_format)
+        #fm_helper.generate_flow_metrics_report(obj_board[JiraJsonKeyConst.NAME.value], output_csv_file_fullpath, start_column_name, done_column_name,GeneralConstants.ID_COLUMN_NAME.value, date_format)
     # -------------
 except Exception as e:
     print(f"Error : {e}")

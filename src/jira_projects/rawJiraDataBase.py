@@ -23,9 +23,10 @@ class JiraDataBase:
 
     def insert_additional_columns_to_csv(self, additional_columns):
         for column in additional_columns:
-            obj_dict = {}
-            obj_dict[JiraJsonKeyConst.COLUMN_NAME.value] = column
-            self.csv_single_row_list[obj_dict[JiraJsonKeyConst.COLUMN_NAME.value]] = ''
+            if column != None:
+                obj_dict = {}
+                obj_dict[JiraJsonKeyConst.COLUMN_NAME.value] = column
+                self.csv_single_row_list[obj_dict[JiraJsonKeyConst.COLUMN_NAME.value]] = ''
 
     def clear_later_workflow_column_value(self, mapped_column_for_status):
         found: bool = False
@@ -40,15 +41,15 @@ class JiraDataBase:
         self.csv_single_row_list[JiraDataBase._idColumnName] = issue_id
 
     
-    def set_board_column_value(self, mapped_column_for_status, status_change_date):
-        if mapped_column_for_status:
-            self.csv_single_row_list[mapped_column_for_status] = status_change_date
+    def set_value_for_csvcolumn(self, mapped_csvcolumn_for_field, new_value):
+        if mapped_csvcolumn_for_field:
+            self.csv_single_row_list[mapped_csvcolumn_for_field] = new_value
 
     def set_row_values_to_blank(self):
         for columns in self.csv_single_row_list:
             self.csv_single_row_list[columns] = ''
     
-    def get_mapped_column_for_status(self, current_status: str) -> str:
+    def get_mapped_csvcolumn_for_status(self, current_status: str) -> str:
         mapped_column: str = ''
         loop_breaker = False
         for column in self.jira_board_columns:
@@ -62,7 +63,7 @@ class JiraDataBase:
         return mapped_column
 
     def get_first_column_having_mapped_status(self):
-        first_column_with_mapped_status: str = ''
+        first_column_with_mapped_status: str = ""
         for jira_column in self.jira_board_columns:
             if len(jira_column)>0:
                 first_column_with_mapped_status = jira_column[JiraJsonKeyConst.COLUMN_NAME.value]
