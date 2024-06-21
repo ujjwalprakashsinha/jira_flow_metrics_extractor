@@ -8,8 +8,8 @@ import logging
 
 from credential.credential_manager import CredentialManager
 from utils.dateutil import DateUtil
-from jira_projects.rawJiraDataBase import JiraDataBase
-from constants import JiraJsonKeyConstants as JiraJsonKeyConst, FileFolderNameConstants as FileFolderNameConst, ConfigKeyConstants as ConfigKeyConst, GeneralConstants
+from helper.jira_helper import JiraWorkItem
+from constants import JiraJsonKeyConstants as JiraJsonKeyConst, FileFolderNameConstants as FileFolderNameConst, ConfigKeyConstants as ConfigKeyConst, GeneralConstants as GeneralConst
 import helper.jira_helper as jira_helper
 #import helper.flow_metrics_helper as fm_helper
 
@@ -45,19 +45,25 @@ try:
     # check for board id, else use the columns from configuration file
     if obj_board[JiraJsonKeyConst.QUERY_JIRA_BOARD.value]:
         cur_jira_board_config = jira_helper.get_jira_board_config_by_id(int(obj_board[JiraJsonKeyConst.BOARD_ID.value]), jira_token, jira_url)
-        filter_id = cur_jira_board_config[GeneralConstants.FILTER_ID.value]
+        filter_id = cur_jira_board_config[GeneralConst.FILTER_ID.value]
         if JiraJsonKeyConst.JQL_ISSUE_TYPE.value in obj_board and obj_board[JiraJsonKeyConst.JQL_ISSUE_TYPE.value] != "":
             obj_board[JiraJsonKeyConst.JQL.value] = f"filter = {filter_id} and {obj_board[JiraJsonKeyConst.JQL_ISSUE_TYPE.value]}"
-        columns = cur_jira_board_config[GeneralConstants.BOARD_COLUMNS.value]
+        columns = cur_jira_board_config[GeneralConst.BOARD_COLUMNS.value]
     else:
         columns = obj_board[JiraJsonKeyConst.COLUMNS.value]
     output_file_name = obj_board[JiraJsonKeyConst.NAME.value] + FileFolderNameConst.TWIG_OUTPUT_FILE_POSTFIX.value
-    obj_jira_data = JiraDataBase(search_query=obj_board[JiraJsonKeyConst.JQL.value], jira_board_columns=columns,
+    obj_jira_data = JiraWorkItem(search_query=obj_board[JiraJsonKeyConst.JQL.value], jira_board_columns=columns,
                                  output_file_name=output_file_name)
 
     print(f'Please wait, we are preparing data for "{obj_board[JiraJsonKeyConst.NAME.value]}"')
-
-    jira_fields_needed = ["status", "created"]
+    # define a dictionary to specify the needed jira fields (apart form status change dates info ) which needs to be captured in the output
+    # fields 
+    #   - created & status = needed for the data and hence must always be here with value None
+    dict_needed_jira_field_and_column_mapping: dict = {
+        "created": None,
+        "status": None,
+    }
+    jira_fields_needed = list(dict_needed_jira_field_and_column_mapping.keys())
     all_jira_issues = jira_helper.get_jira_issues(obj_jira_data.search_query, jira_fields_needed, jira_url, jira_token)
 
     print('Extracting status change information...')
@@ -82,7 +88,7 @@ try:
                         mapped_column_current_issue_status = obj_jira_data.get_mapped_csvcolumn_for_status(
                             current_status=item.toString)
                         if mapped_column_current_issue_status == '' or mapped_column_current_issue_status is None:
-                            logger.info(f'Status mapping missing for: {item.toString} | Issue ID: {obj_jira_data.csv_single_row_list[JiraDataBase._idColumnName]} | Change Date: {history.created}')
+                            logger.info(f'Status mapping missing for: {item.toString} | Issue ID: {obj_jira_data.csv_single_row_list[GeneralConst.ID_COLUMN_NAME.value]} | Change Date: {history.created}')
                             break
 
                         obj_jira_data.set_value_for_csvcolumn(mapped_csvcolumn_for_field=mapped_column_current_issue_status,
@@ -100,14 +106,14 @@ try:
             csv_writer.writerow(obj_jira_data.csv_single_row_list.values())
     print(f"{len(all_jira_issues)} records prepared.")
     print(f'Output File: {output_csv_file_fullpath}')
-    print(f"Please check {FileFolderNameConst.APP_LOG_FILENAME.value} file for info on missing status mapping in the record, if any.")
+    print(f"Please check '{FileFolderNameConst.APP_LOG_FILENAME.value}' file for info on missing status mapping in the record, if any.")
 
     # ------------ Generate flow metric report if true -----------
     if(config[ConfigKeyConst.GENERATE_FLOW_METRICS_REPORT_KEY.value]):
         start_column_name =  columns[1][JiraJsonKeyConst.COLUMN_NAME.value]
         done_column_name = columns[len(columns)-1][JiraJsonKeyConst.COLUMN_NAME.value]
         date_format = config[ConfigKeyConst.OUTPUT_DATE_FORMAT_KEY.value]
-        #fm_helper.generate_flow_metrics_report(obj_board[JiraJsonKeyConst.NAME.value], output_csv_file_fullpath, start_column_name, done_column_name,GeneralConstants.ID_COLUMN_NAME.value, date_format)
+        #fm_helper.generate_flow_metrics_report(obj_board[JiraJsonKeyConst.NAME.value], output_csv_file_fullpath, start_column_name, done_column_name,GeneralConst.ID_COLUMN_NAME.value, date_format)
     # -------------
 except Exception as e:
     print(f"Error : {e}")

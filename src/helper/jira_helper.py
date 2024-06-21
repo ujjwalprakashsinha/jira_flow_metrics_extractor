@@ -3,8 +3,78 @@ import json
 import requests
 from jira import JIRA
 from tqdm import tqdm
-from constants import JiraJsonKeyConstants as JiraJsonKeyConst, FileFolderNameConstants as FileFolderNameConst, GeneralConstants
-from jira_projects.rawJiraDataBase import JiraDataBase
+from constants import JiraJsonKeyConstants as JiraJsonKeyConst, FileFolderNameConstants as FileFolderNameConst, GeneralConstants as GeneralConst
+
+class JiraWorkItem:
+    _idColumnName = GeneralConst.ID_COLUMN_NAME.value
+
+    def __init__(self, search_query, jira_board_columns, output_file_name):
+        self.file_name: str = output_file_name
+        self.search_query: str = search_query
+        self.jira_board_columns = jira_board_columns
+        self.csv_single_row_list = {
+            JiraWorkItem._idColumnName: 0
+        }
+
+        # Build the row_list using the columns array
+        temp_columns = self.jira_board_columns.copy()
+        for column in temp_columns:
+            if JiraJsonKeyConst.STATUSES.value in column and len(column[JiraJsonKeyConst.STATUSES.value]) == 0:
+                self.jira_board_columns.remove(column)
+
+        for column in self.jira_board_columns:
+            self.csv_single_row_list[column[JiraJsonKeyConst.COLUMN_NAME.value]] = ''
+
+    def insert_additional_columns_to_csv(self, additional_columns):
+        for column in additional_columns:
+            if column != None:
+                obj_dict = {}
+                obj_dict[JiraJsonKeyConst.COLUMN_NAME.value] = column
+                self.csv_single_row_list[obj_dict[JiraJsonKeyConst.COLUMN_NAME.value]] = ''
+
+    def clear_later_workflow_column_value(self, mapped_column_for_status):
+        found: bool = False
+        for value in self.csv_single_row_list:
+            if value == mapped_column_for_status:
+                found = True
+                continue
+            if found:
+                self.csv_single_row_list[value] = ''
+
+    def set_issue_id(self, issue_id):
+        self.csv_single_row_list[GeneralConst.ID_COLUMN_NAME.value] = issue_id
+
+    
+    def set_value_for_csvcolumn(self, mapped_csvcolumn_for_field, new_value):
+        if mapped_csvcolumn_for_field:
+            self.csv_single_row_list[mapped_csvcolumn_for_field] = new_value
+
+    def set_row_values_to_blank(self):
+        for columns in self.csv_single_row_list:
+            self.csv_single_row_list[columns] = ''
+    
+    def get_mapped_csvcolumn_for_status(self, current_status: str) -> str:
+        mapped_column: str = ''
+        loop_breaker = False
+        for column in self.jira_board_columns:
+            for status in column[JiraJsonKeyConst.STATUSES.value]:
+                if current_status != None and status.casefold() == current_status.casefold():
+                    mapped_column = column[JiraJsonKeyConst.COLUMN_NAME.value]
+                    loop_breaker = True
+                    break
+            if loop_breaker:
+                break
+        return mapped_column
+
+    def get_first_column_having_mapped_status(self):
+        first_column_with_mapped_status: str = ""
+        for jira_column in self.jira_board_columns:
+            if len(jira_column)>0:
+                first_column_with_mapped_status = jira_column[JiraJsonKeyConst.COLUMN_NAME.value]
+                break
+        
+        return first_column_with_mapped_status
+    
 
 def get_config_file_path(exe_folder_path, file_name) -> str:
     return str(os.path.join(os.path.dirname(exe_folder_path), FileFolderNameConst.CONFIG_FOLDERNAME.value, file_name))
@@ -53,9 +123,9 @@ def get_jira_board_config_by_id(board_id: int, jira_token: str, jira_url: str):
             statuses.append(jira_status['name'])
         dict_column[JiraJsonKeyConst.STATUSES.value] = statuses
         board_columns.append(dict_column)
-    jira_board_config[GeneralConstants.BOARD_COLUMNS.value] = board_columns
-    jira_board_config[GeneralConstants.FILTER_ID.value] = board_config["filter"]["id"]
-    jira_board_config[GeneralConstants.BOARD_NAME.value] = board_config["name"]
+    jira_board_config[GeneralConst.BOARD_COLUMNS.value] = board_columns
+    jira_board_config[GeneralConst.FILTER_ID.value] = board_config["filter"]["id"]
+    jira_board_config[GeneralConst.BOARD_NAME.value] = board_config["name"]
     return jira_board_config
 
 
@@ -102,7 +172,7 @@ def get_jira_issues(search_query: str, jira_fields: list, jira_url: str, jira_to
     return all_jira_issues
 
 
-def log_issue_status_change_history(all_jira_issues: list, obj_jira_data: JiraDataBase):
+def log_issue_status_change_history(all_jira_issues: list, obj_jira_data: JiraWorkItem):
     for jira_issue in all_jira_issues:
             obj_jira_data.set_row_values_to_blank()
             # assign created date as the value for first column which has mapped status
@@ -117,7 +187,7 @@ def log_issue_status_change_history(all_jira_issues: list, obj_jira_data: JiraDa
                         mapped_column_current_issue_status = obj_jira_data.get_mapped_csvcolumn_for_status(
                             current_status=item.toString)
                         if mapped_column_current_issue_status == '' or mapped_column_current_issue_status is None:
-                            print(f'Info: Status mapping missing for: {item.toString} | Issue ID: {obj_jira_data.csv_single_row_list[JiraDataBase._idColumnName]} | Change Date: {history.created}')
+                            print(f'Info: Status mapping missing for: {item.toString} | Issue ID: {obj_jira_data.csv_single_row_list[GeneralConst.ID_COLUMN_NAME.value]} | Change Date: {history.created}')
                             break
 
                         obj_jira_data.set_value_for_csvcolumn(mapped_csvcolumn_for_field=mapped_column_current_issue_status,

@@ -8,8 +8,8 @@ import logging
 
 from credential.credential_manager import CredentialManager
 from utils.dateutil import DateUtil
-from jira_projects.rawJiraDataBase import JiraDataBase
-from constants import JiraJsonKeyConstants as JiraJsonKeyConst, FileFolderNameConstants as FileFolderNameConst, ConfigKeyConstants as ConfigKeyConst, GeneralConstants, DateUtilConstants as DateUtilConst 
+from helper.jira_helper import JiraWorkItem
+from constants import JiraJsonKeyConstants as JiraJsonKeyConst, FileFolderNameConstants as FileFolderNameConst, ConfigKeyConstants as ConfigKeyConst, GeneralConstants as GeneralConst, DateUtilConstants as DateUtilConst 
 import helper.jira_helper as jira_helper
 
 
@@ -44,30 +44,32 @@ try:
     # check for board id, else use the columns from configuration file
     if obj_board[JiraJsonKeyConst.QUERY_JIRA_BOARD.value]:
         cur_jira_board_config = jira_helper.get_jira_board_config_by_id(int(obj_board[JiraJsonKeyConst.BOARD_ID.value]), jira_token, jira_url)
-        filter_id = cur_jira_board_config[GeneralConstants.FILTER_ID.value]
+        filter_id = cur_jira_board_config[GeneralConst.FILTER_ID.value]
         if JiraJsonKeyConst.JQL_ISSUE_TYPE.value in obj_board and obj_board[JiraJsonKeyConst.JQL_ISSUE_TYPE.value] != "":
             obj_board[JiraJsonKeyConst.JQL.value] = f"filter = {filter_id} and {obj_board[JiraJsonKeyConst.JQL_ISSUE_TYPE.value]}"
-        columns = cur_jira_board_config[GeneralConstants.BOARD_COLUMNS.value]
+        columns = cur_jira_board_config[GeneralConst.BOARD_COLUMNS.value]
     else:
         columns = obj_board[JiraJsonKeyConst.COLUMNS.value]
     output_file_name = obj_board[JiraJsonKeyConst.NAME.value] + FileFolderNameConst.COLUMN_OUTPUT_FILE_POSTFIX.value
-    obj_jira_data = JiraDataBase(search_query=obj_board[JiraJsonKeyConst.JQL.value], jira_board_columns=columns,
+    obj_jira_data = JiraWorkItem(search_query=obj_board[JiraJsonKeyConst.JQL.value], jira_board_columns=columns,
                                  output_file_name=output_file_name)
 
     print(f'Please wait, we are preparing data for "{obj_board[JiraJsonKeyConst.NAME.value]}"')
-    
-    # define a dictionary to specify the addtional jira fields (apart form status change history info ) which needs to be captured in the output
-    # fields which needs to be fetched for some purpose but not needed in the output should be mentioned as None, eg: "created": None, 
-    dict_additional_field_and_column_mapping: dict = {
+    # define a dictionary to specify the needed jira fields (apart form status change dates info ) which needs to be captured in the output
+    # fields 
+    #   - created & status = needed for the data and hence must always be here with value None
+    dict_needed_jira_field_and_column_mapping: dict = {
         "created": None,
-        "status": "status",
-        "issuetype": "issuetype"
-        #"project": "Project Key",
-        #"customfield_10002": "Story Point"
+        "status": None,
     }
-    additional_columns = list(dict_additional_field_and_column_mapping.values()) 
+    #  Add/Update additional fields which are needed in the output csv
+    dict_needed_jira_field_and_column_mapping.update({"status": "Status"})
+    dict_needed_jira_field_and_column_mapping.update({"issuetype": "Issue Type"})
+    #dict_needed_jira_field_and_column_mapping.update({"project": "Project Key"})
+    #dict_needed_jira_field_and_column_mapping.update({"customfield_10002": "Story Point"})
+    additional_columns = list(dict_needed_jira_field_and_column_mapping.values()) 
     obj_jira_data.insert_additional_columns_to_csv(additional_columns)
-    jira_fields_needed = list(dict_additional_field_and_column_mapping.keys())
+    jira_fields_needed = list(dict_needed_jira_field_and_column_mapping.keys())
     all_jira_issues = jira_helper.get_jira_issues(obj_jira_data.search_query, jira_fields_needed, jira_url, jira_token)
 
     print('Extracting status change information...')
@@ -92,7 +94,7 @@ try:
                         mapped_column_current_issue_status = obj_jira_data.get_mapped_csvcolumn_for_status(
                             current_status=item.toString)
                         if mapped_column_current_issue_status == '' or mapped_column_current_issue_status is None:
-                            logger.info(f'Status mapping missing for: {item.toString} | Issue ID: {obj_jira_data.csv_single_row_list[JiraDataBase._idColumnName]} | Change Date: {history.created}')
+                            logger.info(f'Status mapping missing for: {item.toString} | Issue ID: {obj_jira_data.csv_single_row_list[GeneralConst.ID_COLUMN_NAME.value]} | Change Date: {history.created}')
                             break
 
                         obj_jira_data.set_value_for_csvcolumn(mapped_csvcolumn_for_field=mapped_column_current_issue_status,
@@ -107,15 +109,13 @@ try:
             for column in obj_jira_data.jira_board_columns:
                 obj_jira_data.csv_single_row_list[column[JiraJsonKeyConst.COLUMN_NAME.value]] = date_utility.convert_jira_date(
                     obj_jira_data.csv_single_row_list[column[JiraJsonKeyConst.COLUMN_NAME.value]])
-
             # set additional column values
-            for field in dict_additional_field_and_column_mapping:
-                if dict_additional_field_and_column_mapping[field] != None and hasattr(jira_issue.fields, field):
+            for field in dict_needed_jira_field_and_column_mapping:
+                if dict_needed_jira_field_and_column_mapping[field] != None and hasattr(jira_issue.fields, field):
                     field_value = getattr(jira_issue.fields, field)
-                    obj_jira_data.set_value_for_csvcolumn(mapped_csvcolumn_for_field=dict_additional_field_and_column_mapping[field],new_value=field_value)
+                    obj_jira_data.set_value_for_csvcolumn(mapped_csvcolumn_for_field=dict_needed_jira_field_and_column_mapping[field],new_value=field_value)
                     #obj_jira_data.set_board_column_value("jiralink", f"{jira_url}/browse/{jira_issue.key}" ) # special case for issue URL in jira         
             
-            # write to the object
             csv_writer.writerow(obj_jira_data.csv_single_row_list.values())
     print(f"{len(all_jira_issues)} records prepared.")
     print(f'Output File: {output_csv_file_fullpath}')
