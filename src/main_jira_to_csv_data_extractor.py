@@ -91,9 +91,10 @@ def main(twig_format_mode=False):
             csv_writer.writerow(header)
             for jira_issue in all_jira_issues:
                 obj_jira_data.set_row_values_to_blank()
+                # get first jira board column having mapped status - exclude columns with no mapped status on jira board like backlog in Kanban board sometime)
+                first_column_having_mapped_status = obj_jira_data.get_first_column_having_mapped_status()
                 # assign created date as the value for first column which has mapped status
-                # (exclude columns with no mapped status on jira board like backlog in Kanban board sometime)
-                obj_jira_data.csv_single_row_list[obj_jira_data.get_first_column_having_mapped_status()] = jira_issue.fields.created
+                obj_jira_data.csv_single_row_list[first_column_having_mapped_status] = jira_issue.fields.created
                 obj_jira_data.set_issue_id(jira_issue.key)
                 mapped_column_final_issue_status = obj_jira_data.get_mapped_csvcolumn_for_status(
                     current_status=jira_issue.fields.status.name)
