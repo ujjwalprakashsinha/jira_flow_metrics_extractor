@@ -5,12 +5,13 @@ import os
 import yaml
 from helper.credential.credential_manager import CredentialManager
 from helper.constants import FileFolderNameConstants as FileFolderNameConst, ConfigKeyConstants as ConfigKeyConst
-import helper.jira_helper as jira_helper
+import helper.jira_helper as jh
+import helper.file_helper as fh
 
 # ***** The Main code execution starts here ****
 try:
     exe_path = os.path.dirname(__file__)
-    config_file_full_path = jira_helper.get_config_file_path(exe_path, FileFolderNameConst.CONFIG_FILENAME.value)
+    config_file_full_path = fh.get_config_file_path(exe_path, FileFolderNameConst.CONFIG_FILENAME.value)
     with open(config_file_full_path) as file:  # loading config file for this project
         config = yaml.safe_load(file)
     jira_url = config[ConfigKeyConst.JIRA_URL_KEY.value]
@@ -23,10 +24,10 @@ try:
     search_query = "filter = 27620 AND resolutiondate >= -300d AND resolutiondate >= 2024-06-02 AND resolutiondate < 2024-06-09" # the search query
 
     jira_fields_needed = ["status", "created", "summary", "project", "customfield_10002", "customfield_11115", "priority"] # customfield_10002 = Story Points
-    all_jira_issues = jira_helper.get_jira_issues(search_query, jira_fields_needed, jira_url, jira_token, issue_history_needed=False)
+    all_jira_issues = jh.get_jira_issues(search_query, jira_fields_needed, jira_url, jira_token, issue_history_needed=False)
 
     print('Data extracted from Jira...')
-    output_folder_path = jira_helper.get_output_folder_path(exe_path)
+    output_folder_path = fh.get_output_folder_path(exe_path)
     os.makedirs(name=output_folder_path, exist_ok=True)
     output_csv_file_fullpath = os.path.join(output_folder_path, output_file_name)
     csv_single_row_list = {

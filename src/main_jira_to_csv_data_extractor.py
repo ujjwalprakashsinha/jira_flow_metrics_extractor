@@ -10,23 +10,23 @@ from helper.credential.credential_manager import CredentialManager
 from helper.utils.dateutil import DateUtil
 from helper.jira_helper import JiraWorkItem
 from helper.constants import JiraJsonKeyConstants as JiraJsonKeyConst, FileFolderNameConstants as FileFolderNameConst, ConfigKeyConstants as ConfigKeyConst, GeneralConstants as GeneralConst, DateUtilConstants as DateUtilConst 
-import helper.jira_helper as jira_helper
+import helper.jira_helper as jh
+import helper.file_helper as fh
 #import helper.flow_metrics_helper as fm_helper #UNCOMMENT ONLY WHEN DEPENDCY ISSUES ARE RESOLVED
+
 
 
 def main(twig_format_mode=False):
     try:
         logging.basicConfig(filename=FileFolderNameConst.APP_LOG_FILENAME.value, filemode="w", level=logging.INFO )
         logger = logging.getLogger(__name__)
-        exe_path = os.path.dirname(__file__)
-        config_file_full_path = jira_helper.get_config_file_path(exe_path, FileFolderNameConst.CONFIG_FILENAME.value)
-        with open(config_file_full_path) as file:  # loading config file for this project
-            config = yaml.safe_load(file)
-        jira_board_config_full_file_path = jira_helper.get_config_file_path(exe_path, config[ConfigKeyConst.JIRA_BOARD_CONFIG_FILENAME_KEY.value])
-        with open(jira_board_config_full_file_path) as file:  # load jira board query configuration file
-            jira_board_queries_config = yaml.safe_load(file)
-        jira_url = config[ConfigKeyConst.JIRA_URL_KEY.value]
-        active_boards = jira_helper.get_all_active_jira_query_names(jira_board_queries_config)
+        script_path = os.path.dirname(__file__)
+        config_file_full_path = fh.get_config_file_path(script_path, FileFolderNameConst.CONFIG_FILENAME.value)
+        app_config = fh.read_config(config_file_full_path) # loading config file for this project
+        jira_board_config_full_file_path = fh.get_config_file_path(script_path, app_config[ConfigKeyConst.JIRA_BOARD_CONFIG_FILENAME_KEY.value])
+        jira_board_queries_config = fh.read_config(jira_board_config_full_file_path) # loading jira board configuratio  file for this project
+        jira_url = app_config[ConfigKeyConst.JIRA_URL_KEY.value]
+        active_boards = jh.get_all_active_jira_query_names(jira_board_queries_config)
         print('-----------------------------------------')
         print('List of Active Boards in the config are:')
         print('-----------------------------------------')
@@ -34,23 +34,25 @@ def main(twig_format_mode=False):
             print(f"{active_boards.index(jira_board)}. {jira_board}")
         print('-----------------------------------------')
         input_index: int =  int(input('Type the number for the option (from the above list): '))
-        obj_board = jira_helper.get_jira_query_by_name(active_boards[input_index], jira_board_queries_config)
+        obj_board = jh.get_jira_query_by_name(active_boards[input_index], jira_board_queries_config)
         if obj_board is None:
             print('!!! Invalid Query Name provided. Exiting code !!!')
             sys.exit()
 
         cred_manager = CredentialManager()
-        jira_token = cred_manager.get_credential(config[ConfigKeyConst.JIRA_TOKEN_CONFIG_KEY.value])
+        jira_token = cred_manager.get_credential(app_config[ConfigKeyConst.JIRA_TOKEN_CONFIG_KEY.value])
 
         # check for board id, else use the columns from configuration file
-        if obj_board[JiraJsonKeyConst.QUERY_JIRA_BOARD.value]:
-            cur_jira_board_config = jira_helper.get_jira_board_config_by_id(int(obj_board[JiraJsonKeyConst.BOARD_ID.value]), jira_token, jira_url)
+        is_query_jira_board_enabled: bool = obj_board.get(JiraJsonKeyConst.QUERY_JIRA_BOARD.value)
+        if is_query_jira_board_enabled != None and not obj_board[JiraJsonKeyConst.QUERY_JIRA_BOARD.value]:
+            columns = obj_board[JiraJsonKeyConst.COLUMNS.value]
+        else:
+            cur_jira_board_config = jh.get_jira_board_config_by_id(int(obj_board[JiraJsonKeyConst.BOARD_ID.value]), jira_token, jira_url)
             filter_id = cur_jira_board_config[GeneralConst.FILTER_ID.value]
             if JiraJsonKeyConst.JQL_ISSUE_TYPE.value in obj_board and obj_board[JiraJsonKeyConst.JQL_ISSUE_TYPE.value] != "":
                 obj_board[JiraJsonKeyConst.JQL.value] = f"filter = {filter_id} and {obj_board[JiraJsonKeyConst.JQL_ISSUE_TYPE.value]}"
             columns = cur_jira_board_config[GeneralConst.BOARD_COLUMNS.value]
-        else:
-            columns = obj_board[JiraJsonKeyConst.COLUMNS.value]
+       
         # define a dictionary to specify the needed jira fields (apart form status change dates info ) which needs to be captured in the output
         # fields 
         #   - created & status = needed for the data and hence must always be here with value None
@@ -69,7 +71,7 @@ def main(twig_format_mode=False):
             #dict_needed_jira_field_and_column_mapping.update({"customfield_10002": "Story Point"})
 
             output_file_name = obj_board[JiraJsonKeyConst.NAME.value] + FileFolderNameConst.OUTPUT_FILE_POSTFIX.value
-            date_format = config[ConfigKeyConst.OUTPUT_DATE_FORMAT_KEY.value]
+            date_format = app_config[ConfigKeyConst.OUTPUT_DATE_FORMAT_KEY.value]
 
         date_utility = DateUtil(date_format=date_format)
         obj_jira_data = JiraWorkItem(search_query=obj_board[JiraJsonKeyConst.JQL.value], jira_board_columns=columns,
@@ -80,10 +82,10 @@ def main(twig_format_mode=False):
         additional_columns = list(dict_needed_jira_field_and_column_mapping.values()) 
         obj_jira_data.insert_additional_columns_to_csv(additional_columns)
         jira_fields_needed = list(dict_needed_jira_field_and_column_mapping.keys())
-        all_jira_issues = jira_helper.get_jira_issues(obj_jira_data.search_query, jira_fields_needed, jira_url, jira_token)
+        all_jira_issues = jh.get_jira_issues(obj_jira_data.search_query, jira_fields_needed, jira_url, jira_token)
 
         print('Extracting status change information...')
-        output_folder_path = jira_helper.get_output_folder_path(exe_path)
+        output_folder_path = fh.get_output_folder_path(script_path)
         os.makedirs(name=output_folder_path, exist_ok=True)
         output_csv_file_fullpath = os.path.join(output_folder_path, obj_jira_data.file_name)
         with open(output_csv_file_fullpath, 'w', newline='') as csvfile:
@@ -130,7 +132,7 @@ def main(twig_format_mode=False):
         print(f"Please check '{FileFolderNameConst.APP_LOG_FILENAME.value}' file for info on missing status mapping in the record, if any.")
 
         # ------------ Generate flow metric report if true -----------
-        if(config.get(ConfigKeyConst.GENERATE_FLOW_METRICS_REPORT_KEY.value)):
+        if(app_config.get(ConfigKeyConst.GENERATE_FLOW_METRICS_REPORT_KEY.value)):
             start_column_name =  columns[1][JiraJsonKeyConst.COLUMN_NAME.value]
             done_column_name = columns[len(columns)-1][JiraJsonKeyConst.COLUMN_NAME.value]
             #fm_helper.generate_flow_metrics_report(obj_board[JiraJsonKeyConst.NAME.value], output_csv_file_fullpath, start_column_name, done_column_name,GeneralConst.ID_COLUMN_NAME.value, date_format)

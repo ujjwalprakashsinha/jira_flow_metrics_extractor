@@ -6,14 +6,13 @@ from tqdm import tqdm
 from helper.constants import JiraJsonKeyConstants as JiraJsonKeyConst, FileFolderNameConstants as FileFolderNameConst, GeneralConstants as GeneralConst
 
 class JiraWorkItem:
-    _idColumnName = GeneralConst.ID_COLUMN_NAME.value
 
     def __init__(self, search_query, jira_board_columns, output_file_name):
         self.file_name: str = output_file_name
         self.search_query: str = search_query
         self.jira_board_columns = jira_board_columns
         self.csv_single_row_list = {
-            JiraWorkItem._idColumnName: 0
+            GeneralConst.ID_COLUMN_NAME.value: 0
         }
 
         # Build the row_list using the columns array
@@ -74,17 +73,9 @@ class JiraWorkItem:
                 break
         
         return first_column_with_mapped_status
-    
-
-def get_config_file_path(exe_folder_path, file_name) -> str:
-    return str(os.path.join(os.path.dirname(exe_folder_path), FileFolderNameConst.CONFIG_FOLDERNAME.value, file_name))
 
 
-def get_output_folder_path(exe_folder) -> str:
-    return str(os.path.join(os.path.dirname(exe_folder), FileFolderNameConst.OUTPUT_FOLDERNAME.value))
-
-
-def get_all_active_jira_query_names(jira_board_queries_config):
+def get_all_active_jira_query_names(jira_board_queries_config) -> list:
     available_jira_queries = []
     for query in jira_board_queries_config[JiraJsonKeyConst.BOARDS.value]:
         if JiraJsonKeyConst.SHOW.value in query and not query[JiraJsonKeyConst.SHOW.value]:
@@ -99,27 +90,30 @@ def get_jira_query_by_name(name_of_query: str, jira_board_queries_config):
             return query
 
 
-def get_jira_board_config_by_id(board_id: int, jira_token: str, jira_url: str):
-    jira_board_config = {}
-    board_columns = []
+def get_jira_service_response(service_url, jira_token, service_params=None):
     # Headers with Authorization using API token
     headers = {
         "Authorization": f"Bearer {jira_token}"  # Use Bearer token for API tokens
     }
     # URL for retrieving board configuration
-    board_config_url = f"{jira_url}/rest/agile/1.0/board/{board_id}/configuration"
-    response = requests.get(board_config_url, headers=headers)
+    response = requests.get(service_url, headers=headers, params=service_params)
     response.raise_for_status()  # Raise an exception for non-200 status codes
     # Parse JSON response if successful
-    board_config = json.loads(response.text)
+    return json.loads(response.text)
+
+def get_jira_board_config_by_id(board_id: int, jira_token: str, jira_url: str):
+    jira_board_config = {}
+    board_columns = []
+    
+    board_config_service_url = f"{jira_url}/rest/agile/1.0/board/{board_id}/configuration"
+    
+    board_config = get_jira_service_response(service_url=board_config_service_url, jira_token=jira_token)
     for board_column in board_config['columnConfig']['columns']:
         dict_column = {}
         dict_column[JiraJsonKeyConst.COLUMN_NAME.value] = board_column["name"]
         statuses = []
         for status in board_column['statuses']:
-            response = requests.get(status['self'], headers=headers)
-            response.raise_for_status()  # Raise an exception for non-200 status codes
-            jira_status = json.loads(response.text)
+            jira_status = get_jira_service_response(service_url=status['self'], jira_token=jira_token)
             statuses.append(jira_status['name'])
         dict_column[JiraJsonKeyConst.STATUSES.value] = statuses
         board_columns.append(dict_column)
@@ -130,17 +124,11 @@ def get_jira_board_config_by_id(board_id: int, jira_token: str, jira_url: str):
 
 
 def get_jira_issues(search_query: str, jira_fields: list, jira_url: str, jira_token: str, issue_history_needed: bool = True)-> list:
-    # Headers with Authorization using API token
-    headers = {
-        "Authorization": f"Bearer {jira_token}"  # Use Bearer token for API tokens
-    }
-    # URL for retrieving board configuration
-    board_config_url = f"{jira_url}/rest/api/2/search"
+    
+    jira_issue_search_service_url = f"{jira_url}/rest/api/2/search"
     params = {"jql": search_query, "maxResults": 0}
-    response = requests.get(board_config_url, headers=headers, params=params)
-    response.raise_for_status()  # Raise an exception for non-200 status codes
-    # Parse JSON response if successful
-    data = json.loads(response.text)
+    data = get_jira_service_response(jira_issue_search_service_url, jira_token=jira_token, service_params=params)
+    
     # Get the total number of issues matching the query
     total_issues = int(data["total"])
     # Create a progress bar
