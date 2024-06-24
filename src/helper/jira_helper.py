@@ -1,4 +1,3 @@
-import os
 import json
 import requests
 from jira import JIRA
@@ -24,12 +23,14 @@ class JiraWorkItem:
         for column in self.jira_board_columns:
             self.csv_single_row_list[column[JiraJsonKeyConst.COLUMN_NAME.value]] = ''
 
+
     def insert_additional_columns_to_csv(self, additional_columns):
         for column in additional_columns:
             if column != None:
                 obj_dict = {}
                 obj_dict[JiraJsonKeyConst.COLUMN_NAME.value] = column
                 self.csv_single_row_list[obj_dict[JiraJsonKeyConst.COLUMN_NAME.value]] = ''
+
 
     def clear_later_workflow_column_value(self, mapped_column_for_status):
         found: bool = False
@@ -40,6 +41,7 @@ class JiraWorkItem:
             if found:
                 self.csv_single_row_list[value] = ''
 
+
     def set_issue_id(self, issue_id):
         self.csv_single_row_list[GeneralConst.ID_COLUMN_NAME.value] = issue_id
 
@@ -48,10 +50,12 @@ class JiraWorkItem:
         if mapped_csvcolumn_for_field:
             self.csv_single_row_list[mapped_csvcolumn_for_field] = new_value
 
+
     def set_row_values_to_blank(self):
         for columns in self.csv_single_row_list:
             self.csv_single_row_list[columns] = ''
     
+
     def get_mapped_csvcolumn_for_status(self, current_status: str) -> str:
         mapped_column: str = ''
         loop_breaker = False
@@ -65,6 +69,7 @@ class JiraWorkItem:
                 break
         return mapped_column
 
+
     def get_first_column_having_mapped_status(self):
         first_column_with_mapped_status: str = ""
         for jira_column in self.jira_board_columns:
@@ -73,6 +78,18 @@ class JiraWorkItem:
                 break
         
         return first_column_with_mapped_status
+
+
+def _get_jira_service_response(service_url, jira_token, service_params=None):
+    # Headers with Authorization using API token
+    headers = {
+        "Authorization": f"Bearer {jira_token}"  # Use Bearer token for API tokens
+    }
+    # URL for retrieving board configuration
+    response = requests.get(service_url, headers=headers, params=service_params)
+    response.raise_for_status()  # Raise an exception for non-200 status codes
+    # Parse JSON response if successful
+    return json.loads(response.text)
 
 
 def get_all_active_jira_query_names(jira_board_queries_config) -> list:
@@ -90,30 +107,19 @@ def get_jira_query_by_name(name_of_query: str, jira_board_queries_config):
             return query
 
 
-def get_jira_service_response(service_url, jira_token, service_params=None):
-    # Headers with Authorization using API token
-    headers = {
-        "Authorization": f"Bearer {jira_token}"  # Use Bearer token for API tokens
-    }
-    # URL for retrieving board configuration
-    response = requests.get(service_url, headers=headers, params=service_params)
-    response.raise_for_status()  # Raise an exception for non-200 status codes
-    # Parse JSON response if successful
-    return json.loads(response.text)
-
 def get_jira_board_config_by_id(board_id: int, jira_token: str, jira_url: str):
     jira_board_config = {}
     board_columns = []
     
     board_config_service_url = f"{jira_url}/rest/agile/1.0/board/{board_id}/configuration"
     
-    board_config = get_jira_service_response(service_url=board_config_service_url, jira_token=jira_token)
+    board_config = _get_jira_service_response(service_url=board_config_service_url, jira_token=jira_token)
     for board_column in board_config['columnConfig']['columns']:
         dict_column = {}
         dict_column[JiraJsonKeyConst.COLUMN_NAME.value] = board_column["name"]
         statuses = []
         for status in board_column['statuses']:
-            jira_status = get_jira_service_response(service_url=status['self'], jira_token=jira_token)
+            jira_status = _get_jira_service_response(service_url=status['self'], jira_token=jira_token)
             statuses.append(jira_status['name'])
         dict_column[JiraJsonKeyConst.STATUSES.value] = statuses
         board_columns.append(dict_column)
@@ -127,7 +133,7 @@ def get_jira_issues(search_query: str, jira_fields: list, jira_url: str, jira_to
     
     jira_issue_search_service_url = f"{jira_url}/rest/api/2/search"
     params = {"jql": search_query, "maxResults": 0}
-    data = get_jira_service_response(jira_issue_search_service_url, jira_token=jira_token, service_params=params)
+    data = _get_jira_service_response(jira_issue_search_service_url, jira_token=jira_token, service_params=params)
     
     # Get the total number of issues matching the query
     total_issues = int(data["total"])
@@ -160,7 +166,7 @@ def get_jira_issues(search_query: str, jira_fields: list, jira_url: str, jira_to
     return all_jira_issues
 
 
-def log_issue_status_change_history(all_jira_issues: list, obj_jira_data: JiraWorkItem):
+def __log_issue_status_change_history(all_jira_issues: list, obj_jira_data: JiraWorkItem):
     for jira_issue in all_jira_issues:
             obj_jira_data.set_row_values_to_blank()
             # assign created date as the value for first column which has mapped status

@@ -1,9 +1,7 @@
 import csv
 from datetime import datetime
 
-import os
 import sys
-import yaml
 import logging
 
 from helper.credential.credential_manager import CredentialManager
@@ -20,9 +18,9 @@ def main(twig_format_mode=False):
     try:
         logging.basicConfig(filename=FileFolderNameConst.APP_LOG_FILENAME.value, filemode="w", level=logging.INFO )
         logger = logging.getLogger(__name__)
-        script_path = os.path.dirname(__file__)
-        config_file_full_path = fh.get_config_file_path(script_path, FileFolderNameConst.CONFIG_FILENAME.value)
-        app_config = fh.read_config(config_file_full_path) # loading config file for this project
+        script_path = fh.get_folder_path_for_file(__file__)
+        app_config_file_full_path = fh.get_config_file_path(script_path, FileFolderNameConst.CONFIG_FILENAME.value)
+        app_config = fh.read_config(app_config_file_full_path) # loading config file for this project
         jira_board_config_full_file_path = fh.get_config_file_path(script_path, app_config[ConfigKeyConst.JIRA_BOARD_CONFIG_FILENAME_KEY.value])
         jira_board_queries_config = fh.read_config(jira_board_config_full_file_path) # loading jira board configuratio  file for this project
         jira_url = app_config[ConfigKeyConst.JIRA_URL_KEY.value]
@@ -86,8 +84,7 @@ def main(twig_format_mode=False):
 
         print('Extracting status change information...')
         output_folder_path = fh.get_output_folder_path(script_path)
-        os.makedirs(name=output_folder_path, exist_ok=True)
-        output_csv_file_fullpath = os.path.join(output_folder_path, obj_jira_data.file_name)
+        output_csv_file_fullpath = fh.create_file_and_return_fullpath_with_name(output_folder_path, obj_jira_data.file_name)
         with open(output_csv_file_fullpath, 'w', newline='') as csvfile:
             csv_writer = csv.writer(csvfile)
             header = obj_jira_data.csv_single_row_list.keys()
