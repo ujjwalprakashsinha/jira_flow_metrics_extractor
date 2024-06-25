@@ -111,7 +111,7 @@ def get_jira_board_config_by_id(board_id: int, jira_token: str, jira_url: str):
     jira_board_config = {}
     board_columns = []
     
-    board_config_service_url = f"{jira_url}/rest/agile/1.0/board/{board_id}/configuration"
+    board_config_service_url = f"{jira_url}/rest/agile/latest/board/{board_id}/configuration"
     
     board_config = _get_jira_service_response(service_url=board_config_service_url, jira_token=jira_token)
     for board_column in board_config['columnConfig']['columns']:
@@ -131,7 +131,7 @@ def get_jira_board_config_by_id(board_id: int, jira_token: str, jira_url: str):
 
 def get_jira_issues(search_query: str, jira_fields: list, jira_url: str, jira_token: str, issue_history_needed: bool = True)-> list:
     
-    jira_issue_search_service_url = f"{jira_url}/rest/api/2/search"
+    jira_issue_search_service_url = f"{jira_url}/rest/api/latest/search"
     params = {"jql": search_query, "maxResults": 0}
     data = _get_jira_service_response(jira_issue_search_service_url, jira_token=jira_token, service_params=params)
     
