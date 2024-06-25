@@ -48,8 +48,11 @@ def main(twig_format_mode=False):
             cur_jira_board_config = jh.get_jira_board_config_by_id(int(obj_board[JiraJsonKeyConst.BOARD_ID.value]), jira_token, jira_url)
             filter_id = cur_jira_board_config[GeneralConst.FILTER_ID.value]
             if JiraJsonKeyConst.JQL_ISSUE_TYPE.value in obj_board and obj_board[JiraJsonKeyConst.JQL_ISSUE_TYPE.value] != "":
-                obj_board[JiraJsonKeyConst.JQL.value] = f"filter = {filter_id} and {obj_board[JiraJsonKeyConst.JQL_ISSUE_TYPE.value]}"
+                obj_board[JiraJsonKeyConst.JQL.value] = f"filter = {filter_id} and {obj_board[JiraJsonKeyConst.JQL_ISSUE_TYPE.value]}" # concatinate the board filter with the config jql if mentioned
             columns = cur_jira_board_config[GeneralConst.BOARD_COLUMNS.value]
+            print("---------------------------------------")
+            print(f"Jira Board name: {cur_jira_board_config[GeneralConst.BOARD_NAME.value]}")
+            print(f"Additional Query Filter applied: {obj_board[JiraJsonKeyConst.JQL_ISSUE_TYPE.value]}")
        
         # define a dictionary to specify the needed jira fields (apart form status change dates info ) which needs to be captured in the output
         # fields 
@@ -75,7 +78,7 @@ def main(twig_format_mode=False):
         obj_jira_data = JiraWorkItem(search_query=obj_board[JiraJsonKeyConst.JQL.value], jira_board_columns=columns,
                                     output_file_name=output_file_name)
 
-        print(f'Please wait, we are preparing data for "{obj_board[JiraJsonKeyConst.NAME.value]}"')
+        print(f'Please wait, preparing data for "{obj_board[JiraJsonKeyConst.NAME.value]}"')
         
         additional_columns = list(dict_needed_jira_field_and_column_mapping.values()) 
         obj_jira_data.insert_additional_columns_to_csv(additional_columns)
