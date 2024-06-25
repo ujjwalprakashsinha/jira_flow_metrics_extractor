@@ -1,9 +1,7 @@
 boards:
 - name: SAMPLE1
-  query_jira_board: true
   jql_issue_type: "issuetype not in (Epic, Program, Test, subTaskIssueTypes())"
   board_id: 12819
 - name: Jira
-  query_jira_board: true
   jql_issue_type: "issuetype not in (Epic, Program, Test, subTaskIssueTypes())"
   board_id: 11102
