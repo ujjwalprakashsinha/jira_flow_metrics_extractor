@@ -34,8 +34,8 @@ class DateUtilConstants(Enum):
 class FileFolderNameConstants(Enum):
     CONFIG_FILENAME = "config.yaml"
     OUTPUT_FOLDERNAME = "outputFiles"
-    TWIG_OUTPUT_FILE_POSTFIX = "_jira_data_twig.csv"
-    OUTPUT_FILE_POSTFIX = "_jira_data.csv"
+    TWIG_OUTPUT_FILE_POSTFIX = "_fm_jira_data_twig.csv"
+    FM_OUTPUT_FILE_POSTFIX = "_fm_jira_data.csv"
     CONFIG_FOLDERNAME = "config"
     APP_LOG_FILENAME = "app.log"
 

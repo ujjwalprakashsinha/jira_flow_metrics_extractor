@@ -71,7 +71,7 @@ def main(twig_format_mode=False):
             #dict_needed_jira_field_and_column_mapping.update({"project": "Project Key"})
             #dict_needed_jira_field_and_column_mapping.update({"customfield_10002": "Story Point"})
 
-            output_file_name = obj_board[JiraJsonKeyConst.NAME.value] + FileFolderNameConst.OUTPUT_FILE_POSTFIX.value
+            output_file_name = obj_board[JiraJsonKeyConst.NAME.value] + FileFolderNameConst.FM_OUTPUT_FILE_POSTFIX.value
             date_format = app_config[ConfigKeyConst.OUTPUT_DATE_FORMAT_KEY.value]
 
         date_utility = DateUtil(date_format=date_format)
