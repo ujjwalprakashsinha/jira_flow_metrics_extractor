@@ -1,5 +1,4 @@
 import csv
-from datetime import datetime
 
 import sys
 import logging
@@ -63,7 +62,7 @@ def main(twig_format_mode=False):
         }
         if twig_format_mode:
             output_file_name = obj_board[JiraJsonKeyConst.NAME.value] + FileFolderNameConst.TWIG_OUTPUT_FILE_POSTFIX.value
-            date_format = DateUtilConst.DATE_FORMAT_TWIG.value 
+            date_format: str = DateUtilConst.DATE_FORMAT_TWIG.value 
         else: # code for normal csv file other than the onbe specific for usage with Actionable Agile twig application
              #  Add/Update additional fields which are needed in the output csv
             dict_needed_jira_field_and_column_mapping.update({"status": "Status"})
@@ -87,8 +86,8 @@ def main(twig_format_mode=False):
 
         print('Extracting status change information...')
         output_folder_path = fh.get_output_folder_path(script_path)
-        output_csv_file_fullpath = fh.create_file_and_return_fullpath_with_name(output_folder_path, obj_jira_data.file_name)
-        with open(output_csv_file_fullpath, 'w', newline='') as csvfile:
+        fm_output_csv_file_fullpath = fh.create_file_and_return_fullpath_with_name(output_folder_path, obj_jira_data.file_name)
+        with open(fm_output_csv_file_fullpath, 'w', newline='') as csvfile:
             csv_writer = csv.writer(csvfile)
             header = obj_jira_data.csv_single_row_list.keys()
             csv_writer.writerow(header)
@@ -129,7 +128,7 @@ def main(twig_format_mode=False):
 
                 csv_writer.writerow(obj_jira_data.csv_single_row_list.values())
         print(f"{len(all_jira_issues)} records prepared.")
-        print(f'Output File: {output_csv_file_fullpath}')
+        print(f'Output File: {fm_output_csv_file_fullpath}')
         print(f"Please check '{FileFolderNameConst.APP_LOG_FILENAME.value}' file for info on missing status mapping in the record, if any.")
 
         # ------------ Generate flow metric report if true -----------
