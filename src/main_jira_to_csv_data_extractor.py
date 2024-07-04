@@ -73,7 +73,6 @@ def main(twig_format_mode=False):
             output_file_name = obj_board[JiraJsonKeyConst.NAME.value] + FileFolderNameConst.FM_OUTPUT_FILE_POSTFIX.value
             date_format = app_config[ConfigKeyConst.OUTPUT_DATE_FORMAT_KEY.value]
 
-        date_utility = DateUtil(date_format=date_format)
         obj_jira_data = JiraWorkItem(search_query=obj_board[JiraJsonKeyConst.JQL.value], jira_board_columns=columns,
                                     output_file_name=output_file_name)
 
@@ -92,40 +91,8 @@ def main(twig_format_mode=False):
             header = obj_jira_data.csv_single_row_list.keys()
             csv_writer.writerow(header)
             for jira_issue in all_jira_issues:
-                obj_jira_data.set_row_values_to_blank()
-                # get first jira board column having mapped status - exclude columns with no mapped status on jira board like backlog in Kanban board sometime)
-                first_column_having_mapped_status = obj_jira_data.get_first_column_having_mapped_status()
-                # assign created date as the value for first column which has mapped status
-                obj_jira_data.csv_single_row_list[first_column_having_mapped_status] = jira_issue.fields.created
-                obj_jira_data.set_issue_id(jira_issue.key)
-                mapped_column_final_issue_status = obj_jira_data.get_mapped_csvcolumn_for_status(
-                    current_status=jira_issue.fields.status.name)
-                for history in jira_issue.changelog.histories:
-                    for item in history.items:
-                        if item.field == "status" and item.toString != item.fromString :  # checking for status change in the history & that status did not change to same
-                            mapped_column_current_issue_status = obj_jira_data.get_mapped_csvcolumn_for_status(
-                                current_status=item.toString)
-                            if mapped_column_current_issue_status == '' or mapped_column_current_issue_status is None:
-                                logger.info(f'Status mapping missing for: {item.toString} | Issue ID: {obj_jira_data.csv_single_row_list[GeneralConst.ID_COLUMN_NAME.value]} | Change Date: {history.created}')
-                                break
-
-                            obj_jira_data.set_value_for_csvcolumn(mapped_csvcolumn_for_field=mapped_column_current_issue_status,
-                                                        new_value=history.created)
-                            obj_jira_data.clear_later_workflow_column_value(
-                                mapped_column_for_status=mapped_column_current_issue_status)
-
-                obj_jira_data.clear_later_workflow_column_value(mapped_column_final_issue_status)
-                # set additional column values
-                for field in dict_needed_jira_field_and_column_mapping:
-                    if dict_needed_jira_field_and_column_mapping[field] != None and hasattr(jira_issue.fields, field):
-                        field_value = getattr(jira_issue.fields, field)
-                        obj_jira_data.set_value_for_csvcolumn(mapped_csvcolumn_for_field=dict_needed_jira_field_and_column_mapping[field],new_value=field_value)
-                        #obj_jira_data.set_board_column_value("jiralink", f"{jira_url}/browse/{jira_issue.key}" ) # special case for issue URL in jira
-                # add the change date (needed format) to the csv_row_list object and add to csv
-                for column in obj_jira_data.jira_board_columns:
-                    obj_jira_data.csv_single_row_list[column[JiraJsonKeyConst.COLUMN_NAME.value]] = date_utility.convert_jira_date(
-                        obj_jira_data.csv_single_row_list[column[JiraJsonKeyConst.COLUMN_NAME.value]])
-
+                jh.capture_issue_status_change_history(jira_issue=jira_issue, obj_jira_data=obj_jira_data, date_format=date_format)
+                jh.capture_additional_columns(jira_issue=jira_issue, obj_jira_data=obj_jira_data, field_and_column_mapping=dict_needed_jira_field_and_column_mapping)
                 csv_writer.writerow(obj_jira_data.csv_single_row_list.values())
         print(f"{len(all_jira_issues)} records prepared.")
         print(f'Output File: {fm_output_csv_file_fullpath}')
@@ -139,6 +106,7 @@ def main(twig_format_mode=False):
         # -------------
     except Exception as e:
         print(f"Error : {e}")
+        logger.error(f"Error : {e}")
 
 if __name__ == "__main__":   
     main()

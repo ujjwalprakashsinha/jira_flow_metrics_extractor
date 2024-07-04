@@ -3,6 +3,8 @@ import requests
 from jira import JIRA
 from tqdm import tqdm
 from helper.constants import JiraJsonKeyConstants as JiraJsonKeyConst, FileFolderNameConstants as FileFolderNameConst, GeneralConstants as GeneralConst
+from helper.utils.dateutil import DateUtil
+import logging
 
 class JiraWorkItem:
 
@@ -79,6 +81,9 @@ class JiraWorkItem:
         
         return first_column_with_mapped_status
 
+
+logging.basicConfig(filename=FileFolderNameConst.APP_LOG_FILENAME.value, filemode="w", level=logging.INFO )
+logger = logging.getLogger(__name__)
 
 def _get_jira_service_response(service_url, jira_token, service_params=None):
     # Headers with Authorization using API token
@@ -166,27 +171,40 @@ def get_jira_issues(search_query: str, jira_fields: list, jira_url: str, jira_to
     return all_jira_issues
 
 
-def __log_issue_status_change_history(all_jira_issues: list, obj_jira_data: JiraWorkItem):
-    for jira_issue in all_jira_issues:
-            obj_jira_data.set_row_values_to_blank()
-            # assign created date as the value for first column which has mapped status
-            # (exclude columns with no mapped status on jira board like backlog in Kanban board sometime)
-            obj_jira_data.csv_single_row_list[obj_jira_data.get_first_column_having_mapped_status()] = jira_issue.fields.created
-            obj_jira_data.set_issue_id(jira_issue.key)
-            mapped_column_final_issue_status = obj_jira_data.get_mapped_csvcolumn_for_status(
-                current_status=jira_issue.fields.status.name)
-            for history in jira_issue.changelog.histories:
-                for item in history.items:
-                    if item.field == "status" and item.toString != item.fromString :  # checking for status change in the history & that status did not change to same
-                        mapped_column_current_issue_status = obj_jira_data.get_mapped_csvcolumn_for_status(
-                            current_status=item.toString)
-                        if mapped_column_current_issue_status == '' or mapped_column_current_issue_status is None:
-                            print(f'Info: Status mapping missing for: {item.toString} | Issue ID: {obj_jira_data.csv_single_row_list[GeneralConst.ID_COLUMN_NAME.value]} | Change Date: {history.created}')
-                            break
+def capture_issue_status_change_history(jira_issue: list, obj_jira_data: JiraWorkItem, date_format: str):
+    date_utility = DateUtil(date_format)
+    obj_jira_data.set_row_values_to_blank()
+    # get first jira board column having mapped status - exclude columns with no mapped status on jira board like backlog in Kanban board sometime)
+    first_column_having_mapped_status = obj_jira_data.get_first_column_having_mapped_status()
+    # assign created date as the value for first column which has mapped status
+    obj_jira_data.csv_single_row_list[first_column_having_mapped_status] = jira_issue.fields.created
+    obj_jira_data.set_issue_id(jira_issue.key)
+    mapped_column_final_issue_status = obj_jira_data.get_mapped_csvcolumn_for_status(
+        current_status=jira_issue.fields.status.name)
+    for history in jira_issue.changelog.histories:
+        for item in history.items:
+            if item.field == "status" and item.toString != item.fromString :  # checking for status change in the history & that status did not change to same
+                mapped_column_current_issue_status = obj_jira_data.get_mapped_csvcolumn_for_status(
+                    current_status=item.toString)
+                if mapped_column_current_issue_status == '' or mapped_column_current_issue_status is None:
+                    logger.info(f'Status mapping missing for: {item.toString} | Issue ID: {obj_jira_data.csv_single_row_list[GeneralConst.ID_COLUMN_NAME.value]} | Change Date: {history.created}')
+                    break
 
-                        obj_jira_data.set_value_for_csvcolumn(mapped_csvcolumn_for_field=mapped_column_current_issue_status,
-                                                       new_value=history.created)
-                        obj_jira_data.clear_later_workflow_column_value(
-                            mapped_column_for_status=mapped_column_current_issue_status)
+                obj_jira_data.set_value_for_csvcolumn(mapped_csvcolumn_for_field=mapped_column_current_issue_status,
+                                            new_value=history.created)
+                obj_jira_data.clear_later_workflow_column_value(
+                    mapped_column_for_status=mapped_column_current_issue_status)
 
-            obj_jira_data.clear_later_workflow_column_value(mapped_column_final_issue_status)
+    obj_jira_data.clear_later_workflow_column_value(mapped_column_final_issue_status)
+    # add the change date (needed format) to the csv_row_list object and add to csv
+    for column in obj_jira_data.jira_board_columns:
+        obj_jira_data.csv_single_row_list[column[JiraJsonKeyConst.COLUMN_NAME.value]] = date_utility.convert_jira_date(
+            obj_jira_data.csv_single_row_list[column[JiraJsonKeyConst.COLUMN_NAME.value]])
+        
+
+def capture_additional_columns(jira_issue: list, obj_jira_data: JiraWorkItem, field_and_column_mapping: dict,):
+    # set additional column values
+    for field in field_and_column_mapping:
+        if field_and_column_mapping[field] != None and hasattr(jira_issue.fields, field):
+            field_value = getattr(jira_issue.fields, field)
+            obj_jira_data.set_value_for_csvcolumn(mapped_csvcolumn_for_field=field_and_column_mapping[field],new_value=field_value)
