@@ -36,6 +36,7 @@ class FileFolderNameConstants(Enum):
     OUTPUT_FOLDERNAME = "outputFiles"
     TWIG_OUTPUT_FILE_POSTFIX = "_fm_jira_data_twig.csv"
     FM_OUTPUT_FILE_POSTFIX = "_fm_jira_data.csv"
+    ADF_OUTPUT_FILE_POSTFIX = "_adf_jira_data.csv"
     CONFIG_FOLDERNAME = "config"
     APP_LOG_FILENAME = "app.log"
 

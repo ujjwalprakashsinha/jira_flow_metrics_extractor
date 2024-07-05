@@ -20,6 +20,10 @@ def get_output_folder_path(script_path) -> str:
     return str(os.path.join(os.path.dirname(script_path), FileFolderNameConst.OUTPUT_FOLDERNAME.value))
 
 
+def get_file_fullpath_with_name(folder_path, file_name) -> str:
+    output_file_fullpath = os.path.join(folder_path, file_name) 
+    return output_file_fullpath
+
 def create_file_and_return_fullpath_with_name(folder_path, file_name) -> str:
     os.makedirs(name=folder_path, exist_ok=True)
     output_file_fullpath = os.path.join(folder_path, file_name)

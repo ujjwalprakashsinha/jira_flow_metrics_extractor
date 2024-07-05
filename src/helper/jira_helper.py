@@ -49,7 +49,7 @@ class JiraWorkItem:
 
     
     def set_value_for_csvcolumn(self, mapped_csvcolumn_for_field, new_value):
-        if mapped_csvcolumn_for_field:
+        if mapped_csvcolumn_for_field and mapped_csvcolumn_for_field in self.csv_single_row_list:
             self.csv_single_row_list[mapped_csvcolumn_for_field] = new_value
 
 
@@ -201,10 +201,16 @@ def capture_issue_status_change_history(jira_issue: list, obj_jira_data: JiraWor
         obj_jira_data.csv_single_row_list[column[JiraJsonKeyConst.COLUMN_NAME.value]] = date_utility.convert_jira_date(
             obj_jira_data.csv_single_row_list[column[JiraJsonKeyConst.COLUMN_NAME.value]])
         
+    return obj_jira_data.csv_single_row_list
 
-def capture_additional_columns(jira_issue: list, obj_jira_data: JiraWorkItem, field_and_column_mapping: dict,):
-    # set additional column values
+
+def capture_additional_field_value(jira_issue: list,field_and_column_mapping: dict,):
+    data = {
+            GeneralConst.ID_COLUMN_NAME.value: jira_issue.key
+        }
     for field in field_and_column_mapping:
         if field_and_column_mapping[field] != None and hasattr(jira_issue.fields, field):
             field_value = getattr(jira_issue.fields, field)
-            obj_jira_data.set_value_for_csvcolumn(mapped_csvcolumn_for_field=field_and_column_mapping[field],new_value=field_value)
+            data[field_and_column_mapping[field]] = field_value
+
+    return data
