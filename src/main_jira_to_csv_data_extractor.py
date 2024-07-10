@@ -60,8 +60,8 @@ def main(twig_format_mode=False):
             obj_board[JiraJsonKeyConst.JQL.value] = f"filter = {filter_id}{exclude_query}"
             columns = cur_jira_board_config[GeneralConst.BOARD_COLUMNS.value]
             print("---------------------------------------")
-            print(f"Jira Board name: {cur_jira_board_config[GeneralConst.BOARD_NAME.value]}")
-            print(f"Excluded Issue Type/s: {excluded_issue_types}")
+            print(f"Jira Board name: \n \t{cur_jira_board_config[GeneralConst.BOARD_NAME.value]}")
+            print(f"Excluded Issue Type/s: \n \t{excluded_issue_types}")
        
         # define a dictionary to specify the needed jira fields (apart form status change dates info ) which needs to be captured in the output
         # fields 
@@ -118,7 +118,7 @@ def main(twig_format_mode=False):
         merged_df['Labels'] = merged_df['Labels'].apply(join_with_pipe)
         merged_df.to_csv(merged_file_fullpath, index=False)
         print(f"{len(all_jira_issues)} records prepared.")
-        print(f'Output Files: {merged_file_fullpath}, {fm_output_csv_file_fullpath}, {additional_field_csv_file_fullpath}')
+        print(f'Output Files: \n \t{merged_file_fullpath} \n \t{fm_output_csv_file_fullpath} \n \t{additional_field_csv_file_fullpath}')
         print(f"Please check '{FileFolderNameConst.APP_LOG_FILENAME.value}' file for info on missing status mapping in the record, if any.")
 
         # ------------ Generate flow metric report if true -----------
