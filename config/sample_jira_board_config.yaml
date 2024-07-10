@@ -1,7 +1,7 @@
 boards:
 - name: SAMPLE1
-  jql_issue_type: "issuetype not in (Epic, Program, Test, subTaskIssueTypes())"
+  jql_exclude_issue_type: Epic, Program, Test, subTaskIssueTypes()
   board_id: 12819
 - name: Jira
-  jql_issue_type: "issuetype not in (Epic, Program, Test, subTaskIssueTypes())"
+  jql_exclude_issue_type: subTaskIssueTypes()
   board_id: 11102

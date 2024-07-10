@@ -85,21 +85,21 @@ The extracted data can be used to generate insights which helps the team to effe
       value: jira_token # if (mode = env_var) then environment variable name. if (mode = string) then personal jira token value.
 
     # output date format
-    output_date_format: "%d/%m/%Y" # all python supported date format
+    output_date_format: "%Y-%m-%d" # any python supported date format
     #jira board configuration file name
     jira_board_config_filename: jira_board_config.yaml 
     generate_flow_metrics_report: false # true or false based on if the flow metrics reports need to be generated
     ```
 
-    | Name  | Description | Default Value |
-    | :----| :----      | :---         |
-    | `jira_url`| the url of your jira instance| None |
-    | `jira_token_config`| Jira token related configuration settings| None |
-    | `mode`| Specifies the mode for stoarge for the jira token. It can either be set to `env_var` if the token is saved in your machine's environment variable or `string` if you want to store it in this configuration file. | None |
-    | `value`| It should either specify the environment variable name if `mode: env_var` or the value of your jira token if `mode: string` | None |
-    | `output_date_format`| Check [Python Dates](https://www.w3schools.com/python/python_datetime.asp) for the options you have (or ask ChatGPT). For example <br> * `"%Y%m%d"` for [TWiG by ActionableAgile](https://analytics.actionableagile.com/twig/index.html) <br> * `"%d.%m.%Y"` for standard excel operations | None |
-    | `jira_board_config_filename`| Name of the configuration file to get jira board related setting. This file should reside under config folder| None |
-    | `generate_flow_metrics_report`| This feature of generating Flow Graphs is still under construction, so either omit/remove this or set it to `false`. | false |
+    | Name  | Description | Default Value | Mandatory |
+    | :----| :----      | :---         | :---         |
+    | `jira_url`| the url of your jira instance| None | Yes |
+    | `jira_token_config`| Jira token related configuration settings| None | Yes |
+    | `mode`| Specifies the mode for stoarge for the jira token. It can either be set to `env_var` if the token is saved in your machine's environment variable or `string` if you want to store it in this configuration file. | None |  Yes |
+    | `value`| It should either specify the environment variable name if `mode: env_var` or the value of your jira token if `mode: string` | None |  Yes |
+    | `output_date_format`| Check [Python Dates](https://www.w3schools.com/python/python_datetime.asp) for the options you have (or ask ChatGPT). For example <br> * `"%Y%m%d"` for [TWiG by ActionableAgile](https://analytics.actionableagile.com/twig/index.html) <br> * `"%Y-%m-%d"` for excel operations | None |  Yes |
+    | `jira_board_config_filename`| Name of the configuration file to get jira board related setting. This file should reside under config folder| None |  Yes |
+    | `generate_flow_metrics_report`| This feature of generating Flow Graphs is still under construction, so either omit/remove this or set it to `false`. | false | No |
 
 2. Configuration of the jira board from which the data will be extracted
 
@@ -107,19 +107,19 @@ The extracted data can be used to generate insights which helps the team to effe
       ```
         boards:
         - name: SAMPLE1
-          jql_issue_type: "issuetype not in (Epic, Program, Test, subTaskIssueTypes())"
+          jql_exclude_issue_type: Epic, Program, Test, subTaskIssueTypes()
           board_id: 12819
         - name: Jira
-          jql_issue_type: "issuetype not in (Epic, Program, Test, subTaskIssueTypes())"
+          jql_exclude_issue_type: subTaskIssueTypes()
           board_id: 11102
       ```
 
-    | Name  | Description | Default Value |
-    | :----| :----      | :---         |
-    |`name`|Short name for the board configured. This will appear when you execute code as one of the options|None|
-    |`jql_issue_type`| Specify the part of jira JQL which defined the type of issues to select or exclude. If this attribute is not mentioned then all issue types from the board are retrieved. <br> * You can specify the jql with issuetype (exclude or include the issue type which are needed for cycle time). <br> * Please ensure that the JQL does not contain double quotes (") and are replaced by single quotes (')|None|
-    |`board_id`|the jira board id, for example (https://jira.abc.com/secure/RapidBoard.jspa?rapidView=12345)  the number after rapidview. This board info will be used for getting issues and related board workflow.|None|
-    |`show`|this is an optional value and can be set to `show: false` or `show: true`. This value ensures (non) visibility of this listing when the program is executed.|true|
+    | Name  | Description | Default Value | Mandatory |
+    | :----| :----      | :---         | :---         |
+    |`name`|Short name for the board configured. This will appear when you execute code as one of the options|None| Yes |
+    |`jql_exclude_issue_type`| Specify the list of issue types which needs to be excluded (separated by comma). If this attribute is not mentioned then all issue types from the board are retrieved. <br> * Please ensure that it does not contain double quotes (") and are replaced by single quotes (')|None| No |
+    |`board_id`|the jira board id, for example (https://jira.abc.com/secure/RapidBoard.jspa?rapidView=12345)  the number after rapidview. This board info will be used for getting issues and related board workflow.|None| Yes |
+    |`show`|this is an optional value and can be set to `show: false` or `show: true`. This value ensures (non) visibility of this listing when the program is executed.|true| No |
 
 ## :checkered_flag: Starting ##
 

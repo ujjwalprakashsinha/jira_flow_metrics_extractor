@@ -6,7 +6,7 @@ jira_token_config:
   value: jira_token # if (mode = env_var) then environment variable name. if (mode = string) then personal jira token value.
 
 # output date format
-output_date_format: "%d/%m/%Y" # all python supported date format
+output_date_format: "%Y-%m-%d" # any python supported date format
 #jira board configuration file name
 jira_board_config_filename: jira_board_config.yaml 
 generate_flow_metrics_report: false # true or false based on if the flow metrics reports need to be generated
