@@ -1,10 +1,7 @@
-import csv
-
 import sys
 import logging
 
 from helper.credential.credential_manager import CredentialManager
-from helper.utils.dateutil import DateUtil
 from helper.jira_helper import JiraWorkItem
 from helper.constants import JiraJsonKeyConstants as JiraJsonKeyConst, FileFolderNameConstants as FileFolderNameConst, ConfigKeyConstants as ConfigKeyConst, GeneralConstants as GeneralConst, DateUtilConstants as DateUtilConst 
 import helper.jira_helper as jh
@@ -53,12 +50,15 @@ def main(twig_format_mode=False):
         else:
             cur_jira_board_config = jh.get_jira_board_config_by_id(int(obj_board[JiraJsonKeyConst.BOARD_ID.value]), jira_token, jira_url)
             filter_id = cur_jira_board_config[GeneralConst.FILTER_ID.value]
-            if JiraJsonKeyConst.JQL_ISSUE_TYPE.value in obj_board and obj_board[JiraJsonKeyConst.JQL_ISSUE_TYPE.value] != "":
-                obj_board[JiraJsonKeyConst.JQL.value] = f"filter = {filter_id} and {obj_board[JiraJsonKeyConst.JQL_ISSUE_TYPE.value]}" # concatinate the board filter with the config jql if mentioned
+            final_jql = f"filter = {filter_id}"
+            if JiraJsonKeyConst.JQL_EXCLUDE_ISSUE_TYPE.value in obj_board and obj_board[JiraJsonKeyConst.JQL_EXCLUDE_ISSUE_TYPE.value] != "" and obj_board[JiraJsonKeyConst.JQL_EXCLUDE_ISSUE_TYPE.value] != None:
+                final_jql += f" and issuetype not in {obj_board[JiraJsonKeyConst.JQL_EXCLUDE_ISSUE_TYPE.value]}" # concatinate the board filter with the config jql if mentioned
+            
+            obj_board[JiraJsonKeyConst.JQL.value] = final_jql
             columns = cur_jira_board_config[GeneralConst.BOARD_COLUMNS.value]
             print("---------------------------------------")
             print(f"Jira Board name: {cur_jira_board_config[GeneralConst.BOARD_NAME.value]}")
-            print(f"Additional Query Filter applied: {obj_board[JiraJsonKeyConst.JQL_ISSUE_TYPE.value]}")
+            print(f"Excluded Issue Type/s: {obj_board[JiraJsonKeyConst.JQL_EXCLUDE_ISSUE_TYPE.value]}")
        
         # define a dictionary to specify the needed jira fields (apart form status change dates info ) which needs to be captured in the output
         # fields 
@@ -78,6 +78,9 @@ def main(twig_format_mode=False):
             dict_needed_jira_field_and_column_mapping.update({"status": "Status"})
             dict_needed_jira_field_and_column_mapping.update({"issuetype": "Type"})
             dict_needed_jira_field_and_column_mapping.update({"labels": "Labels"})
+            dict_needed_jira_field_and_column_mapping.update({"customfield_10005": "Epic Link"})
+            dict_needed_jira_field_and_column_mapping.update({"customfield_11115": "Environment"})
+            dict_needed_jira_field_and_column_mapping.update({"components": "Components"})
             # get file name and date format from config 
             fm_output_file_name = obj_board[JiraJsonKeyConst.NAME.value] + FileFolderNameConst.FM_OUTPUT_FILE_POSTFIX.value
             date_format = app_config[ConfigKeyConst.OUTPUT_DATE_FORMAT_KEY.value]

@@ -48,17 +48,17 @@ class JiraWorkItem:
         self.csv_single_row_list[GeneralConst.ID_COLUMN_NAME.value] = issue_id
 
     
-    def set_value_for_csvcolumn(self, mapped_csvcolumn_for_field, new_value):
-        if mapped_csvcolumn_for_field and mapped_csvcolumn_for_field in self.csv_single_row_list:
-            self.csv_single_row_list[mapped_csvcolumn_for_field] = new_value
+    def set_value_for_status_change_column(self, mapped_column_for_field, new_value):
+        if mapped_column_for_field and mapped_column_for_field in self.csv_single_row_list:
+            self.csv_single_row_list[mapped_column_for_field] = new_value
 
 
-    def set_row_values_to_blank(self):
+    def empty_all_status_change_columns(self):
         for columns in self.csv_single_row_list:
-            self.csv_single_row_list[columns] = ''
+            self.csv_single_row_list[columns] = None
     
 
-    def get_mapped_csvcolumn_for_status(self, current_status: str) -> str:
+    def get_mapped_column_for_status_change(self, current_status: str) -> str:
         mapped_column: str = ''
         loop_breaker = False
         for column in self.jira_board_columns:
@@ -173,24 +173,24 @@ def get_jira_issues(search_query: str, jira_fields: list, jira_url: str, jira_to
 
 def capture_issue_status_change_history(jira_issue: list, obj_jira_data: JiraWorkItem, date_format: str):
     date_utility = DateUtil(date_format)
-    obj_jira_data.set_row_values_to_blank()
-    # get first jira board column having mapped status - exclude columns with no mapped status on jira board like backlog in Kanban board sometime)
+    obj_jira_data.empty_all_status_change_columns()
+    # get first jira board column having mapped status - exclude columns with no mapped status on jira board like backlog in Kanban board sometime
     first_column_having_mapped_status = obj_jira_data.get_first_column_having_mapped_status()
     # assign created date as the value for first column which has mapped status
     obj_jira_data.csv_single_row_list[first_column_having_mapped_status] = jira_issue.fields.created
     obj_jira_data.set_issue_id(jira_issue.key)
-    mapped_column_final_issue_status = obj_jira_data.get_mapped_csvcolumn_for_status(
+    mapped_column_final_issue_status = obj_jira_data.get_mapped_column_for_status_change(
         current_status=jira_issue.fields.status.name)
     for history in jira_issue.changelog.histories:
         for item in history.items:
             if item.field == "status" and item.toString != item.fromString :  # checking for status change in the history & that status did not change to same
-                mapped_column_current_issue_status = obj_jira_data.get_mapped_csvcolumn_for_status(
+                mapped_column_current_issue_status = obj_jira_data.get_mapped_column_for_status_change(
                     current_status=item.toString)
                 if mapped_column_current_issue_status == '' or mapped_column_current_issue_status is None:
                     logger.info(f'Status mapping missing for: {item.toString} | Issue ID: {obj_jira_data.csv_single_row_list[GeneralConst.ID_COLUMN_NAME.value]} | Change Date: {history.created}')
                     break
 
-                obj_jira_data.set_value_for_csvcolumn(mapped_csvcolumn_for_field=mapped_column_current_issue_status,
+                obj_jira_data.set_value_for_status_change_column(mapped_column_for_field=mapped_column_current_issue_status,
                                             new_value=history.created)
                 obj_jira_data.clear_later_workflow_column_value(
                     mapped_column_for_status=mapped_column_current_issue_status)
@@ -211,6 +211,9 @@ def capture_additional_field_value(jira_issue: list,field_and_column_mapping: di
     for field in field_and_column_mapping:
         if field_and_column_mapping[field] != None and hasattr(jira_issue.fields, field):
             field_value = getattr(jira_issue.fields, field)
+            #data[field_and_column_mapping[field]] = field_value
+            if field == "components":
+                field_value = [component.name for component in jira_issue.fields.components]
             data[field_and_column_mapping[field]] = field_value
 
     return data

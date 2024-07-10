@@ -10,7 +10,7 @@ class JiraJsonKeyConstants(Enum):
     BOARDS = "boards"
     QUERY_JIRA_BOARD = "query_jira_board"
     NAME = "name"
-    JQL_ISSUE_TYPE = "jql_issue_type"
+    JQL_EXCLUDE_ISSUE_TYPE = "jql_exclude_issue_type"
     JQL = "jql"
 
     # where the specified option should be displayed or not
