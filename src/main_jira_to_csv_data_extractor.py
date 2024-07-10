@@ -12,7 +12,13 @@ import helper.file_helper as fh
 #import helper.flow_metrics_helper as fm_helper #UNCOMMENT ONLY WHEN DEPENDCY ISSUES ARE RESOLVED
 import pandas as pd
 
+# Function to replace commas with pipes in each string of the list
+def replace_commas(lst):
+    return [s.replace(',', '|') for s in lst]
 
+# Function to join list items with a pipe delimiter
+def join_with_pipe(lst):
+    return '|'.join(lst)
 
 def main(twig_format_mode=False):
     try:
@@ -68,8 +74,9 @@ def main(twig_format_mode=False):
             # Add/Update additional fields which are needed in the output csv
             #dict_needed_jira_field_and_column_mapping.update({"project": "Project Key"})
             #dict_needed_jira_field_and_column_mapping.update({"customfield_10002": "Story Point"})
+            #dict_needed_jira_field_and_column_mapping.update({"summary": "Title"})
             dict_needed_jira_field_and_column_mapping.update({"status": "Status"})
-            dict_needed_jira_field_and_column_mapping.update({"issuetype": "Issue Type"})
+            dict_needed_jira_field_and_column_mapping.update({"issuetype": "Type"})
             dict_needed_jira_field_and_column_mapping.update({"labels": "Labels"})
             # get file name and date format from config 
             fm_output_file_name = obj_board[JiraJsonKeyConst.NAME.value] + FileFolderNameConst.FM_OUTPUT_FILE_POSTFIX.value
@@ -88,20 +95,24 @@ def main(twig_format_mode=False):
         output_folder_path = fh.get_output_folder_path(script_path)
         fm_output_csv_file_fullpath = fh.create_file_and_return_fullpath_with_name(output_folder_path, obj_jira_data.file_name)
         additional_field_csv_file_fullpath = fh.create_file_and_return_fullpath_with_name(output_folder_path, adf_output_file_name)
+        merged_file_fullpath = fh.create_file_and_return_fullpath_with_name(output_folder_path, "merged_" + obj_jira_data.file_name)
         flow_metric_dataset = []
         additonal_field_dataset = []
         for jira_issue in all_jira_issues:
             jira_issue_with_fm_data = jh.capture_issue_status_change_history(jira_issue=jira_issue, obj_jira_data=obj_jira_data, date_format=date_format)
-            lst = jh.capture_additional_field_value(jira_issue=jira_issue, field_and_column_mapping=dict_needed_jira_field_and_column_mapping)
-            additonal_field_dataset.append(lst.copy())
+            jira_issue_with_field_data = jh.capture_additional_field_value(jira_issue=jira_issue, field_and_column_mapping=dict_needed_jira_field_and_column_mapping)
+            additonal_field_dataset.append(jira_issue_with_field_data.copy())
             flow_metric_dataset.append(jira_issue_with_fm_data.copy())
         
         flow_metric_dataframe = pd.DataFrame(flow_metric_dataset)
         flow_metric_dataframe.to_csv(fm_output_csv_file_fullpath, index=False)
         additonal_field_dataframe = pd.DataFrame(additonal_field_dataset)
         additonal_field_dataframe.to_csv(additional_field_csv_file_fullpath, index=False)
+        merged_df = pd.merge(flow_metric_dataframe, additonal_field_dataframe, on=GeneralConst.ID_COLUMN_NAME.value, how='inner')  # how can be 'inner', 'outer', 'left', or 'right'
+        merged_df['Labels'] = merged_df['Labels'].apply(join_with_pipe)
+        merged_df.to_csv(merged_file_fullpath, index=False)
         print(f"{len(all_jira_issues)} records prepared.")
-        print(f'Output File: {fm_output_csv_file_fullpath}')
+        print(f'Output Files: {merged_file_fullpath}, {fm_output_csv_file_fullpath}, {additional_field_csv_file_fullpath}')
         print(f"Please check '{FileFolderNameConst.APP_LOG_FILENAME.value}' file for info on missing status mapping in the record, if any.")
 
         # ------------ Generate flow metric report if true -----------
