@@ -50,7 +50,9 @@ class JiraWorkItem:
     
     def set_value_for_status_change_column(self, mapped_column_for_field, new_value):
         if mapped_column_for_field and mapped_column_for_field in self.csv_single_row_list:
-            self.csv_single_row_list[mapped_column_for_field] = new_value
+            # ensure that if old status change date exists then it is not overwritten
+            if self.csv_single_row_list[mapped_column_for_field] == "" or self.csv_single_row_list[mapped_column_for_field] == None :
+                self.csv_single_row_list[mapped_column_for_field] = new_value
 
 
     def empty_all_status_change_columns(self):
