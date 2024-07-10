@@ -50,15 +50,18 @@ def main(twig_format_mode=False):
         else:
             cur_jira_board_config = jh.get_jira_board_config_by_id(int(obj_board[JiraJsonKeyConst.BOARD_ID.value]), jira_token, jira_url)
             filter_id = cur_jira_board_config[GeneralConst.FILTER_ID.value]
-            final_jql = f"filter = {filter_id}"
+            #final_jql = f"filter = {filter_id}"
+            exclude_query = ""
+            excluded_issue_types = ""
             if JiraJsonKeyConst.JQL_EXCLUDE_ISSUE_TYPE.value in obj_board and obj_board[JiraJsonKeyConst.JQL_EXCLUDE_ISSUE_TYPE.value] != "" and obj_board[JiraJsonKeyConst.JQL_EXCLUDE_ISSUE_TYPE.value] != None:
-                final_jql += f" and issuetype not in {obj_board[JiraJsonKeyConst.JQL_EXCLUDE_ISSUE_TYPE.value]}" # concatinate the board filter with the config jql if mentioned
+                excluded_issue_types = obj_board[JiraJsonKeyConst.JQL_EXCLUDE_ISSUE_TYPE.value]
+                exclude_query = f" and issuetype not in ({excluded_issue_types})" # concatinate the board filter with the config jql if mentioned
             
-            obj_board[JiraJsonKeyConst.JQL.value] = final_jql
+            obj_board[JiraJsonKeyConst.JQL.value] = f"filter = {filter_id}{exclude_query}"
             columns = cur_jira_board_config[GeneralConst.BOARD_COLUMNS.value]
             print("---------------------------------------")
             print(f"Jira Board name: {cur_jira_board_config[GeneralConst.BOARD_NAME.value]}")
-            print(f"Excluded Issue Type/s: {obj_board[JiraJsonKeyConst.JQL_EXCLUDE_ISSUE_TYPE.value]}")
+            print(f"Excluded Issue Type/s: {excluded_issue_types}")
        
         # define a dictionary to specify the needed jira fields (apart form status change dates info ) which needs to be captured in the output
         # fields 
