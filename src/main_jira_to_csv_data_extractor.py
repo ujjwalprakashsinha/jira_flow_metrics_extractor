@@ -17,7 +17,7 @@ def replace_commas(lst):
 def join_with_pipe(lst):
     return '|'.join(lst)
 
-def main(twig_format_mode=False):
+def main(output_date_format:str):
     try:
         logging.basicConfig(filename=FileFolderNameConst.APP_LOG_FILENAME.value, filemode="w", level=logging.INFO )
         logger = logging.getLogger(__name__)
@@ -70,25 +70,35 @@ def main(twig_format_mode=False):
             "created": None,
             "status": None,
         }
-        if twig_format_mode: # code which is execute only for the mode when data is extracted for Actionable agile TWiG tool. 
-            fm_output_file_name = obj_board[JiraJsonKeyConst.NAME.value] + FileFolderNameConst.TWIG_OUTPUT_FILE_POSTFIX.value
-            date_format: str = DateUtilConst.DATE_FORMAT_TWIG.value 
-        else: # code for normal csv file other than the onbe specific for usage with Actionable Agile twig application
+
+        if not bool(output_date_format): # check if date format is not passed - empty or None
+            # fetch date format from the configuration file
+            output_date_format = app_config[ConfigKeyConst.OUTPUT_DATE_FORMAT_KEY.value]
+
+        print(f"Output Date format: \n \t{output_date_format}")
+        file_name_with_csv_file_extension = FileFolderNameConst.FM_OUTPUT_FILE_POSTFIX.value  + FileFolderNameConst.CSV_FILE_EXTENSION.value 
+        fm_output_file_name = obj_board[JiraJsonKeyConst.NAME.value] + file_name_with_csv_file_extension
+        adf_output_file_name = obj_board[JiraJsonKeyConst.NAME.value] + FileFolderNameConst.ADF_OUTPUT_FILE_POSTFIX.value + file_name_with_csv_file_extension
+        merged_file_name = obj_board[JiraJsonKeyConst.NAME.value] + FileFolderNameConst.MERGED_OUTPUT_FILE_POSTFIX.value + file_name_with_csv_file_extension
+        output_folder_path = fh.get_output_folder_path(script_path)
+        fm_output_csv_file_fullpath = fh.create_file_and_return_fullpath_with_name(output_folder_path, fm_output_file_name)
+        additional_field_csv_file_fullpath = fh.create_file_and_return_fullpath_with_name(output_folder_path, adf_output_file_name)
+        merged_file_fullpath = fh.create_file_and_return_fullpath_with_name(output_folder_path, merged_file_name)
+
+        def add_additional_fields_to_query():
             # Add/Update additional fields which are needed in the output csv
             #dict_needed_jira_field_and_column_mapping.update({"project": "Project Key"})
             #dict_needed_jira_field_and_column_mapping.update({"customfield_10002": "Story Point"})
-            #dict_needed_jira_field_and_column_mapping.update({"summary": "Title"})
+            dict_needed_jira_field_and_column_mapping.update({"summary": "Title"})
             dict_needed_jira_field_and_column_mapping.update({"status": "Status"})
             dict_needed_jira_field_and_column_mapping.update({"issuetype": "Type"})
             dict_needed_jira_field_and_column_mapping.update({"labels": "Labels"})
             dict_needed_jira_field_and_column_mapping.update({"customfield_10005": "Epic Link"})
             dict_needed_jira_field_and_column_mapping.update({"customfield_11115": "Environment"})
             dict_needed_jira_field_and_column_mapping.update({"components": "Components"})
-            # get file name and date format from config 
-            fm_output_file_name = obj_board[JiraJsonKeyConst.NAME.value] + FileFolderNameConst.FM_OUTPUT_FILE_POSTFIX.value
-            date_format = app_config[ConfigKeyConst.OUTPUT_DATE_FORMAT_KEY.value]
 
-        adf_output_file_name = obj_board[JiraJsonKeyConst.NAME.value] +  FileFolderNameConst.ADF_OUTPUT_FILE_POSTFIX.value
+        add_additional_fields_to_query()
+        
         obj_jira_data = JiraWorkItem(search_query=obj_board[JiraJsonKeyConst.JQL.value], jira_board_columns=columns,
                                     output_file_name=fm_output_file_name)
 
@@ -98,14 +108,11 @@ def main(twig_format_mode=False):
         all_jira_issues = jh.get_jira_issues(obj_jira_data.search_query, jira_fields_needed, jira_url, jira_token)
 
         print('Extracting status change information...')
-        output_folder_path = fh.get_output_folder_path(script_path)
-        fm_output_csv_file_fullpath = fh.create_file_and_return_fullpath_with_name(output_folder_path, obj_jira_data.file_name)
-        additional_field_csv_file_fullpath = fh.create_file_and_return_fullpath_with_name(output_folder_path, adf_output_file_name)
-        merged_file_fullpath = fh.create_file_and_return_fullpath_with_name(output_folder_path, "merged_" + obj_jira_data.file_name)
+        
         flow_metric_dataset = []
         additonal_field_dataset = []
         for jira_issue in all_jira_issues:
-            jira_issue_with_fm_data = jh.capture_issue_status_change_history(jira_issue=jira_issue, obj_jira_data=obj_jira_data, date_format=date_format)
+            jira_issue_with_fm_data = jh.capture_issue_status_change_history(jira_issue=jira_issue, obj_jira_data=obj_jira_data, date_format=output_date_format)
             jira_issue_with_field_data = jh.capture_additional_field_value(jira_issue=jira_issue, field_and_column_mapping=dict_needed_jira_field_and_column_mapping)
             additonal_field_dataset.append(jira_issue_with_field_data.copy())
             flow_metric_dataset.append(jira_issue_with_fm_data.copy())
@@ -113,9 +120,19 @@ def main(twig_format_mode=False):
         flow_metric_dataframe = pd.DataFrame(flow_metric_dataset)
         flow_metric_dataframe.to_csv(fm_output_csv_file_fullpath, index=False)
         additonal_field_dataframe = pd.DataFrame(additonal_field_dataset)
+        # Add a new column 'Link' with values from column 'ID' to make the url
+        additonal_field_dataframe['Link'] = jira_url + "/browse/" + additonal_field_dataframe[GeneralConst.ID_COLUMN_NAME.value] 
         additonal_field_dataframe.to_csv(additional_field_csv_file_fullpath, index=False)
         merged_df = pd.merge(flow_metric_dataframe, additonal_field_dataframe, on=GeneralConst.ID_COLUMN_NAME.value, how='inner')  # how can be 'inner', 'outer', 'left', or 'right'
         merged_df['Labels'] = merged_df['Labels'].apply(join_with_pipe)
+
+
+        # Reorder the columns to place the new column 'Link' in the second position
+        cols = merged_df.columns.tolist()
+        cols.remove('Link')
+        cols.insert(1, 'Link')
+        merged_df = merged_df[cols]
+
         merged_df.to_csv(merged_file_fullpath, index=False)
         print(f"{len(all_jira_issues)} records prepared.")
         print(f'Output Files: \n \t{merged_file_fullpath} \n \t{fm_output_csv_file_fullpath} \n \t{additional_field_csv_file_fullpath}')
@@ -131,5 +148,5 @@ def main(twig_format_mode=False):
         print(f"Error : {e}")
         logger.error(f"Error : {e}")
 
-if __name__ == "__main__":   
-    main()
+if __name__ == "__main__": 
+    main(output_date_format=None)
