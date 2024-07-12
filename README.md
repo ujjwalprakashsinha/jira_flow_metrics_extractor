@@ -134,7 +134,11 @@ $ cd jira_cycletime_code/src
 $ pip3 install -r requirement.txt
 
 # Run the project
-$ python mainTWIGDataExtract.py
+# for twig file format output
+$ python mainTWIGDataExtract.py 
+
+# for file format made on the configurations
+$ python main_jira_to_csv_data_extractor.py 
 
 ```
 
