@@ -8,6 +8,7 @@ import helper.jira_helper as jh
 import helper.file_helper as fh
 #import helper.flow_metrics_helper as fm_helper #UNCOMMENT ONLY WHEN DEPENDCY ISSUES ARE RESOLVED
 import pandas as pd
+from  helper.utils.dateutil import DateUtil
 
 # Function to replace commas with pipes in each string of the list
 def replace_commas(lst):
@@ -76,10 +77,11 @@ def main(output_date_format:str):
             output_date_format = app_config[ConfigKeyConst.OUTPUT_DATE_FORMAT_KEY.value]
 
         print(f"Output Date format: \n \t{output_date_format}")
+        selected_board_name = obj_board[JiraJsonKeyConst.NAME.value]
         file_name_with_csv_file_extension = FileFolderNameConst.FM_OUTPUT_FILE_POSTFIX.value  + FileFolderNameConst.CSV_FILE_EXTENSION.value 
-        fm_output_file_name = obj_board[JiraJsonKeyConst.NAME.value] + file_name_with_csv_file_extension
-        adf_output_file_name = obj_board[JiraJsonKeyConst.NAME.value] + FileFolderNameConst.ADF_OUTPUT_FILE_POSTFIX.value + file_name_with_csv_file_extension
-        merged_file_name = obj_board[JiraJsonKeyConst.NAME.value] + FileFolderNameConst.MERGED_OUTPUT_FILE_POSTFIX.value + file_name_with_csv_file_extension
+        fm_output_file_name = selected_board_name + file_name_with_csv_file_extension
+        adf_output_file_name = selected_board_name + FileFolderNameConst.ADF_OUTPUT_FILE_POSTFIX.value + file_name_with_csv_file_extension
+        merged_file_name = selected_board_name + FileFolderNameConst.MERGED_OUTPUT_FILE_POSTFIX.value + file_name_with_csv_file_extension
         output_folder_path = fh.get_output_folder_path(script_path)
         fm_output_csv_file_fullpath = fh.create_file_and_return_fullpath_with_name(output_folder_path, fm_output_file_name)
         additional_field_csv_file_fullpath = fh.create_file_and_return_fullpath_with_name(output_folder_path, adf_output_file_name)
@@ -89,8 +91,9 @@ def main(output_date_format:str):
             # Add/Update additional fields which are needed in the output csv
             #dict_needed_jira_field_and_column_mapping.update({"project": "Project Key"})
             #dict_needed_jira_field_and_column_mapping.update({"customfield_10002": "Story Point"})
-            dict_needed_jira_field_and_column_mapping.update({"summary": "Title"})
+            #dict_needed_jira_field_and_column_mapping.update({"summary": "Title"})
             dict_needed_jira_field_and_column_mapping.update({"status": "Status"})
+            dict_needed_jira_field_and_column_mapping.update({"resolution": "Resolution"})
             dict_needed_jira_field_and_column_mapping.update({"issuetype": "Type"})
             dict_needed_jira_field_and_column_mapping.update({"labels": "Labels"})
             dict_needed_jira_field_and_column_mapping.update({"customfield_10005": "Epic Link"})
@@ -102,15 +105,15 @@ def main(output_date_format:str):
         obj_jira_data = JiraWorkItem(search_query=obj_board[JiraJsonKeyConst.JQL.value], jira_board_columns=columns,
                                     output_file_name=fm_output_file_name)
 
-        print(f'Please wait, preparing data for "{obj_board[JiraJsonKeyConst.NAME.value]}"')
+        print(f'Please wait, preparing data for "{selected_board_name}"')
         
         jira_fields_needed = list(dict_needed_jira_field_and_column_mapping.keys())
         all_jira_issues = jh.get_jira_issues(obj_jira_data.search_query, jira_fields_needed, jira_url, jira_token)
 
         print('Extracting status change information...')
         
-        flow_metric_dataset = []
-        additonal_field_dataset = []
+        flow_metric_dataset = list()
+        additonal_field_dataset = list()
         for jira_issue in all_jira_issues:
             jira_issue_with_fm_data = jh.capture_issue_status_change_history(jira_issue=jira_issue, obj_jira_data=obj_jira_data, date_format=output_date_format)
             jira_issue_with_field_data = jh.capture_additional_field_value(jira_issue=jira_issue, field_and_column_mapping=dict_needed_jira_field_and_column_mapping)
@@ -123,17 +126,30 @@ def main(output_date_format:str):
         # Add a new column 'Link' with values from column 'ID' to make the url
         additonal_field_dataframe['Link'] = jira_url + "/browse/" + additonal_field_dataframe[GeneralConst.ID_COLUMN_NAME.value] 
         additonal_field_dataframe.to_csv(additional_field_csv_file_fullpath, index=False)
-        merged_df = pd.merge(flow_metric_dataframe, additonal_field_dataframe, on=GeneralConst.ID_COLUMN_NAME.value, how='inner')  # how can be 'inner', 'outer', 'left', or 'right'
-        merged_df['Labels'] = merged_df['Labels'].apply(join_with_pipe)
+        merged_df = pd.merge(flow_metric_dataframe, additonal_field_dataframe, on=GeneralConst.ID_COLUMN_NAME.value, how='inner')  # how can be 'inner', 'outer', 'left', or 'right'        
 
-
+        # Changes to the labels column if it exists 
+        if "Labels" in merged_df.columns:
+            # replace comas with pipe symbol
+            merged_df['Labels'] = merged_df['Labels'].apply(join_with_pipe)
+        
         # Reorder the columns to place the new column 'Link' in the second position
-        cols = merged_df.columns.tolist()
-        cols.remove('Link')
-        cols.insert(1, 'Link')
-        merged_df = merged_df[cols]
+        if "Link" in merged_df.columns:
+            cols = merged_df.columns.tolist()
+            cols.remove('Link')
+            cols.insert(1, 'Link')
+            merged_df = merged_df[cols]
 
         merged_df.to_csv(merged_file_fullpath, index=False)
+
+        # Get the earliest date in the column
+        earliest_date = flow_metric_dataframe.iloc[:, 1].min()
+        obj_date_util: DateUtil = DateUtil(output_date_format)
+        all_dates_till_today = obj_date_util.get_all_date_till_today(earliest_date)
+        all_dates_dataframe = pd.DataFrame(all_dates_till_today)
+        date_output_csv_file_fullpath = fh.create_file_and_return_fullpath_with_name(output_folder_path, selected_board_name + "_dates.csv")
+        all_dates_dataframe.to_csv(date_output_csv_file_fullpath, index=False)
+
         print(f"{len(all_jira_issues)} records prepared.")
         print(f'Output Files: \n \t{merged_file_fullpath} \n \t{fm_output_csv_file_fullpath} \n \t{additional_field_csv_file_fullpath}')
         print(f"Please check '{FileFolderNameConst.APP_LOG_FILENAME.value}' file for info on missing status mapping in the record, if any.")
@@ -142,11 +158,11 @@ def main(output_date_format:str):
         if(app_config.get(ConfigKeyConst.GENERATE_FLOW_METRICS_REPORT_KEY.value)):
             start_column_name =  columns[1][JiraJsonKeyConst.COLUMN_NAME.value]
             done_column_name = columns[len(columns)-1][JiraJsonKeyConst.COLUMN_NAME.value]
-            #fm_helper.generate_flow_metrics_report(obj_board[JiraJsonKeyConst.NAME.value], output_csv_file_fullpath, start_column_name, done_column_name,GeneralConst.ID_COLUMN_NAME.value, date_format)
+            #fm_helper.generate_flow_metrics_report(selected_board_name, output_csv_file_fullpath, start_column_name, done_column_name,GeneralConst.ID_COLUMN_NAME.value, date_format)
         # -------------
     except Exception as e:
         print(f"Error : {e}")
         logger.error(f"Error : {e}")
 
 if __name__ == "__main__": 
-    main(output_date_format=None)
+    main(output_date_format="")

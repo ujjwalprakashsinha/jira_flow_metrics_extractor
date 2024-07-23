@@ -215,7 +215,7 @@ def capture_additional_field_value(jira_issue: list,field_and_column_mapping: di
             field_value = getattr(jira_issue.fields, field)
             #data[field_and_column_mapping[field]] = field_value
             if field == "components":
-                field_value = [component.name for component in jira_issue.fields.components]
+                field_value = [component.name for component in jira_issue.fields.components] # type: ignore
             data[field_and_column_mapping[field]] = field_value
 
     return data
