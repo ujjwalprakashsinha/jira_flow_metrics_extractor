@@ -114,7 +114,7 @@ def get_jira_query_by_name(name_of_query: str, jira_board_queries_config):
             return query
 
 
-def get_jira_board_config_by_id(board_id: int, jira_token: str, jira_url: str):
+def get_jira_board_config_by_id(board_id: int, jira_url: str, jira_token: str):
     jira_board_config = {}
     board_columns = []
     

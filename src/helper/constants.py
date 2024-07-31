@@ -37,7 +37,7 @@ class FileFolderNameConstants(Enum):
     FM_OUTPUT_FILE_POSTFIX = "_fm_jira_data"
     ADF_OUTPUT_FILE_POSTFIX = "_adf"
     MERGED_OUTPUT_FILE_POSTFIX = "_merged"
-    CONFIG_FOLDERNAME = "config"
+    CONFIG_FOLDERNAME = "configs"
     APP_LOG_FILENAME = "app.log"
     CSV_FILE_EXTENSION = ".csv"
 

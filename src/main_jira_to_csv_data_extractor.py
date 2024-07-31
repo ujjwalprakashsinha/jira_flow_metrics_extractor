@@ -49,7 +49,7 @@ def main(output_date_format:str):
         if is_query_jira_board_enabled != None and not obj_board[JiraJsonKeyConst.QUERY_JIRA_BOARD.value]:
             columns = obj_board[JiraJsonKeyConst.COLUMNS.value]
         else:
-            cur_jira_board_config = jh.get_jira_board_config_by_id(int(obj_board[JiraJsonKeyConst.BOARD_ID.value]), jira_token, jira_url)
+            cur_jira_board_config = jh.get_jira_board_config_by_id(int(obj_board[JiraJsonKeyConst.BOARD_ID.value]), jira_url, jira_token)
             filter_id = cur_jira_board_config[GeneralConst.FILTER_ID.value]
             #final_jql = f"filter = {filter_id}"
             exclude_query = ""

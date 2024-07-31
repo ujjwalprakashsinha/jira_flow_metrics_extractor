@@ -5,10 +5,8 @@ Charts
 .DS_Store
 .idea
 sample_jira_issue_response.json
-config/config.yaml
-config/jira_board_config.yaml
-config/config.json
-config/jira_board_config.json
+configs/config.yaml
+configs/jira_board_config.yaml
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
