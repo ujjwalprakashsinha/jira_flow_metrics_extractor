@@ -34,17 +34,6 @@ def select_jira_board(jira_board_queries_config):
     input_index = int(input('Type the number for the option (from the above list): '))
     return jh.get_jira_query_by_name(active_boards[input_index], jira_board_queries_config)
 
-def all_jira_boards(jira_board_queries_config):
-    active_boards = jh.get_all_active_jira_query_names(jira_board_queries_config)
-    print('-----------------------------------------')
-    print('List of Active Boards in the config are:')
-    print('-----------------------------------------')
-    for index, jira_board in enumerate(active_boards):
-        print(f"{index}. {jira_board}")
-    print('-----------------------------------------')
-    input_index = int(input('Type the number for the option (from the above list): '))
-    return jh.get_jira_query_by_name(active_boards[input_index], jira_board_queries_config)
-
 def get_jira_token(app_config):
     cred_manager = CredentialManager()
     return cred_manager.get_credential(app_config[ConfigKeyConst.JIRA_TOKEN_CONFIG_KEY.value])
