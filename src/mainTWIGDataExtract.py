@@ -1,4 +1,4 @@
-import main_jira_to_csv_data_extractor as jira_data_extractor
+import jira_to_csv_data_extractor_old as jira_data_extractor
 import main_extractor
 from helper.constants import DateUtilConstants as DateUtilConst
 

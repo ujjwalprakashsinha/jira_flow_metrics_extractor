@@ -76,10 +76,10 @@ def add_additional_fields_to_query(mapping):
         "status": "Status", 
         "resolution": "Resolution",
         "issuetype": "Type",
-        "labels": "Labels", 
+        # "labels": "Labels", 
         "customfield_10005": "Epic Link", 
-        "customfield_11115": "Environment",
-        "components": "Components"
+        "customfield_11115": "Environment"
+        # "components": "Components"
     }
     mapping.update(fields)
 
@@ -177,7 +177,7 @@ def main(output_date_format: str):
         
         flow_metric_dataset, additional_field_dataset = process_jira_issues(all_jira_issues, obj_jira_data, output_date_format, dict_needed_jira_field_and_column_mapping)
         save_datasets(flow_metric_dataset, additional_field_dataset, file_paths, jira_url)
-        generate_date_file(pd.DataFrame(flow_metric_dataset), fh.get_output_folder_path(script_path), selected_board_name, output_date_format)
+        # generate_date_file(pd.DataFrame(flow_metric_dataset), fh.get_output_folder_path(script_path), selected_board_name, output_date_format)
 
         print(f"{len(all_jira_issues)} records prepared.")
         print(f'Output Files: \n \t{file_paths["merged_output"]} \n \t{file_paths["fm_output"]} \n \t{file_paths["adf_output"]}')

@@ -143,12 +143,12 @@ def main(output_date_format:str):
         merged_df.to_csv(merged_file_fullpath, index=False)
 
         # Get the earliest date in the column
-        earliest_date = flow_metric_dataframe.iloc[:, 1].min()
+        """ earliest_date = flow_metric_dataframe.iloc[:, 1].min()
         obj_date_util: DateUtil = DateUtil(output_date_format)
         all_dates_till_today = obj_date_util.get_all_date_till_today(earliest_date)
         all_dates_dataframe = pd.DataFrame(all_dates_till_today)
         date_output_csv_file_fullpath = fh.create_file_and_return_fullpath_with_name(output_folder_path, selected_board_name + "_dates.csv")
-        all_dates_dataframe.to_csv(date_output_csv_file_fullpath, index=False)
+        all_dates_dataframe.to_csv(date_output_csv_file_fullpath, index=False) """
 
         print(f"{len(all_jira_issues)} records prepared.")
         print(f'Output Files: \n \t{merged_file_fullpath} \n \t{fm_output_csv_file_fullpath} \n \t{additional_field_csv_file_fullpath}')
