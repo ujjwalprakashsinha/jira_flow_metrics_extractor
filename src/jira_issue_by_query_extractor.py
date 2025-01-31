@@ -1,5 +1,6 @@
 import csv
 from datetime import datetime
+import pandas as pd
 
 from helper.credential.credential_manager import CredentialManager
 from helper.constants import FileFolderNameConstants as FileFolderNameConst, ConfigKeyConstants as ConfigKeyConst
@@ -16,50 +17,47 @@ def main():
         
         cred_manager = CredentialManager()
         jira_token = cred_manager.get_credential(app_config[ConfigKeyConst.JIRA_TOKEN_CONFIG_KEY.value])
-        output_file_name = "Six_Bug_Raw_Data.csv" 
+        
         
         # search_query = "issuetype = Bug and statusCategory in ('To Do', 'In Progress')" # the search query
-        search_query = "resolution is EMPTY and statusCategory = Done "
+        search_query = "resolution is EMPTY and statusCategory = Done"
+        #search_query = "project=AD and statusCategory = 'To Do'"
         # search_query = "filter = 27620 AND resolutiondate >= -300d AND resolutiondate >= 2024-06-02 AND resolutiondate < 2024-06-09" # the search query
 
-        jira_fields_needed = ["status", "created", "summary", "project", "customfield_10002", "customfield_11115", "priority"] # customfield_10002 = Story Points
-        all_jira_issues = jh.get_jira_issues(search_query, jira_fields_needed, jira_url, jira_token, issue_history_needed=False)
+        mapping = {"created": None, "status": None}
+        fields = {
+            "project": "Project",             
+            "priority": "Priority",
+            "status": "Status",
+            "resolution": "Resolution",
+            "issuetype": "Type",
+            "customfield_10005": "Epic Link", 
+            "customfield_11115": "Environment",
+            "updated": "Updated Date"
+            # "labels": "Labels", 
+            # customfield_10002: "Story Points"
+            # "components": "Components"
+        }
+        mapping.update(fields)
+        all_jira_issues = jh.get_jira_issues(search_query, list(mapping.keys()), jira_url, jira_token, issue_history_needed=False)
+
+        #####
+        
+        additional_field_dataset = []
+        for jira_issue in all_jira_issues:
+            jira_issue_with_field_data = jh.capture_additional_field_value(jira_issue=jira_issue, field_and_column_mapping=mapping)
+            additional_field_dataset.append(jira_issue_with_field_data.copy())            
+        #####
 
         print('Data extracted from Jira...')
+        output_file_name = "Jira_Query_Export_Data.xlsx" 
         output_folder_path = fh.get_output_folder_path(script_path)
         output_csv_file_fullpath = fh.create_file_and_return_fullpath_with_name(output_folder_path, output_file_name)
-        csv_single_row_list = {
-                "ID": 0,
-                "summary": "", 
-                #"jiralink": "",
-                "status": "",
-                "environment": "",
-                "priority": "",
-                "project key": "", 
-                "project name": ""
-                #"Story Point": ""
-            }
-        with open(output_csv_file_fullpath, 'w', newline='') as csvfile:
-            csv_writer = csv.writer(csvfile)
-            header = csv_single_row_list.keys()
-            csv_writer.writerow(header)
-            for jira_issue in all_jira_issues:
-                csv_single_row_list["ID"] =  jira_issue.key
-                #csv_single_row_list["jiralink"] = f"{config[ConfigKeyConst.JIRA_URL_KEY.value]}/browse/{jira_issue.key}"
-                csv_single_row_list["status"] = jira_issue.fields.status
-                csv_single_row_list["project key"] = jira_issue.fields.project
-                csv_single_row_list["project name"] = jira_issue.fields.project.name
-                csv_single_row_list["priority"] = jira_issue.fields.priority.name
-                if hasattr(jira_issue.fields, "customfield_11115") and  jira_issue.fields.customfield_11115 != None:
-                    csv_single_row_list["environment"] = jira_issue.get_field("customfield_11115")
-                #csv_single_row_list[Story Point"] = jira_issue.get_field("customfield_10002")
-                #csv_single_row_list["summary"] = jira_issue.fields.summary 
-                # write to the object
-                csv_writer.writerow(csv_single_row_list.values())
-                csv_single_row_list =  dict.fromkeys(csv_single_row_list, None) # delete and clear all values
-        print('\n')
-        print(f"Issues fetched: {len(all_jira_issues)} records")
-        print(f'CSV file {output_csv_file_fullpath} created...' + ' ' + str(datetime.now()))
+
+        flow_metric_dataframe = pd.DataFrame(additional_field_dataset)
+        flow_metric_dataframe.to_excel(output_csv_file_fullpath, index=False)
+        print(f"{len(all_jira_issues)} records prepared.")
+        print(f'Output Files: \n \t{output_csv_file_fullpath} \n')
     except Exception as e:
         print(f"Error : {e}")
         print(e.__traceback__)  # Prints the traceback
