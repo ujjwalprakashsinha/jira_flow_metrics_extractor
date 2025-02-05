@@ -73,13 +73,14 @@ def prepare_output_file_paths(script_path, selected_board_name):
 
 def add_additional_fields_to_query(mapping):
     fields = {
+        "summary": "Title",
         "status": "Status", 
         "resolution": "Resolution",
         "issuetype": "Type",
-        # "labels": "Labels", 
+        "labels": "Labels", 
         "customfield_10005": "Epic Link", 
-        "customfield_11115": "Environment"
-        # "components": "Components"
+        "customfield_11115": "Environment",
+        "components": "Components"
     }
     mapping.update(fields)
 
@@ -104,9 +105,11 @@ def save_datasets(flow_metric_dataset, additional_field_dataset, file_paths, jir
     merged_df.to_csv(file_paths["merged_output"], index=False)
 
 def process_merged_dataframe(merged_df):
+    #column_with_comma_separated_value
     if "Labels" in merged_df.columns:
         merged_df = replace_commas_in_list_of_strings(merged_df, 'Labels')
-        #merged_df['Labels'] = merged_df['Labels'].apply(lambda x: x.replace(',', '|'))
+    if "Components" in merged_df.columns:
+        merged_df = replace_commas_in_list_of_strings(merged_df, 'Components')
     if "Link" in merged_df.columns:
         cols = merged_df.columns.tolist()
         cols.remove('Link')
@@ -124,17 +127,14 @@ def generate_date_file(flow_metric_dataframe, output_folder_path, selected_board
 
 # Function to replace commas with pipes in each string of the list
 def replace_commas(lst):
-    return [s.replace(',', '|') for s in lst]
+    return f"[{' | '.join(lst)}]"
 
-# Function to join list items with a pipe delimiter
-def join_with_pipe(lst):
-    return '|'.join(lst)
 
 
 def replace_commas_in_list_of_strings(df, column_name):
     # Define a helper function to replace commas with pipes in each string of a list
     def replace_commas(lst):
-        return [s.replace(',', '|') for s in lst]
+        return f"[{' | '.join(lst)}]"
     
     # Apply the helper function to each list in the specified column
     df[column_name] = df[column_name].apply(replace_commas)
