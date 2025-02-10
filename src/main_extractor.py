@@ -1,6 +1,7 @@
 import logging
 import sys
 import pandas as pd
+import re
 
 from helper.credential.credential_manager import CredentialManager
 from helper.jira_helper import JiraWorkItem
@@ -110,6 +111,8 @@ def process_merged_dataframe(merged_df):
         merged_df = replace_commas_in_list_of_strings(merged_df, 'Labels')
     if "Components" in merged_df.columns:
         merged_df = replace_commas_in_list_of_strings(merged_df, 'Components')
+    if "Title" in merged_df.columns:
+        merged_df['Title'] = merged_df['Title'].apply(lambda x: re.sub(r'[^\w\s]', '', str(x)))
     if "Link" in merged_df.columns:
         cols = merged_df.columns.tolist()
         cols.remove('Link')
