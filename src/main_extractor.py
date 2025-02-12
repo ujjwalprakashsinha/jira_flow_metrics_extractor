@@ -24,7 +24,7 @@ def load_configurations(script_path):
     jira_board_queries_config = fh.read_config(jira_board_config_full_file_path)
     return app_config, jira_board_queries_config
 
-def select_jira_board(jira_board_queries_config):
+def select_jira_board(jira_board_queries_config: dict) -> dict:
     active_boards = jh.get_all_active_jira_query_names(jira_board_queries_config)
     print('-----------------------------------------')
     print('List of Active Boards in the config are:')
@@ -33,6 +33,8 @@ def select_jira_board(jira_board_queries_config):
         print(f"{index}. {jira_board}")
     print('-----------------------------------------')
     input_index = int(input('Type the number for the option (from the above list): '))
+    if input_index < 0 or input_index >= len(active_boards):
+        raise ValueError("Invalid board selection index")
     return jh.get_jira_query_by_name(active_boards[input_index], jira_board_queries_config)
 
 def get_jira_token(app_config):
