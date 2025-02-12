@@ -95,14 +95,30 @@ def process_jira_issues(all_jira_issues, obj_jira_data, output_date_format, mapp
         flow_metric_dataset.append(jira_issue_with_fm_data.copy())
     return flow_metric_dataset, additional_field_dataset
 
-def save_datasets(flow_metric_dataset, additional_field_dataset, file_paths, jira_url):
+def save_datasets(flow_metric_dataset: list, additional_field_dataset: list, file_paths: dict, jira_url: str):
+    """
+    Save datasets to CSV files after processing and merging.
+
+    Args:
+        flow_metric_dataset (list of dict): The dataset containing flow metrics.
+        additional_field_dataset (list of dict): The dataset containing additional fields.
+        file_paths (dict): A dictionary containing file paths for saving the datasets.
+            Expected keys are:
+                - "fm_output": Path to save the flow metric dataset CSV.
+                - "adf_output": Path to save the additional field dataset CSV.
+                - "merged_output": Path to save the merged dataset CSV.
+        jira_url (str): The base URL of the JIRA instance.
+
+    Returns:
+        None
+    """
     flow_metric_dataframe = pd.DataFrame(flow_metric_dataset)
-    flow_metric_dataframe.to_csv(file_paths["fm_output"], index=False)
     additional_field_dataframe = pd.DataFrame(additional_field_dataset)
     additional_field_dataframe['Link'] = jira_url + "/browse/" + additional_field_dataframe[GeneralConst.ID_COLUMN_NAME.value]
-    additional_field_dataframe.to_csv(file_paths["adf_output"], index=False)
     merged_df = pd.merge(flow_metric_dataframe, additional_field_dataframe, on=GeneralConst.ID_COLUMN_NAME.value, how='inner')
     merged_df = process_merged_dataframe(merged_df)
+    flow_metric_dataframe.to_csv(file_paths["fm_output"], index=False)
+    #additional_field_dataframe.to_csv(file_paths["adf_output"], index=False)
     merged_df.to_csv(file_paths["merged_output"], index=False)
 
 def process_merged_dataframe(merged_df):
@@ -120,7 +136,19 @@ def process_merged_dataframe(merged_df):
         merged_df = merged_df[cols]
     return merged_df
 
-def generate_date_file(flow_metric_dataframe, output_folder_path, selected_board_name, output_date_format):
+def generate_date_file(flow_metric_dataframe: pd.DataFrame, output_folder_path: str, selected_board_name: str, output_date_format: str):
+    """
+    Generates a CSV file containing all dates from the earliest date in the given DataFrame to today.
+
+    Args:
+        flow_metric_dataframe (pd.DataFrame): DataFrame containing flow metrics with dates.
+        output_folder_path (str): Path to the folder where the output CSV file will be saved.
+        selected_board_name (str): Name of the selected board, used to name the output file.
+        output_date_format (str): Desired date format for the output dates.
+
+    Returns:
+        None
+    """
     earliest_date = flow_metric_dataframe.iloc[:, 1].min()
     obj_date_util = DateUtil(output_date_format)
     all_dates_till_today = obj_date_util.get_all_date_till_today(earliest_date)
@@ -128,13 +156,15 @@ def generate_date_file(flow_metric_dataframe, output_folder_path, selected_board
     date_output_csv_file_fullpath = fh.create_file_and_return_fullpath_with_name(output_folder_path, selected_board_name + "_dates.csv")
     all_dates_dataframe.to_csv(date_output_csv_file_fullpath, index=False)
 
-# Function to replace commas with pipes in each string of the list
-def replace_commas(lst):
-    return f"[{' | '.join(lst)}]"
-
-
-
-def replace_commas_in_list_of_strings(df, column_name):
+def replace_commas_in_list_of_strings(df: pd.DataFrame, column_name: str) -> pd.DataFrame:
+    """
+    Replace commas with pipes in each string of a list within a specified column of a DataFrame.
+    Args:
+        df (pandas.DataFrame): The DataFrame containing the column to be processed.
+        column_name (str): The name of the column containing lists of strings.
+    Returns:
+        pandas.DataFrame: The DataFrame with the specified column's lists of strings modified.
+    """
     # Define a helper function to replace commas with pipes in each string of a list
     def replace_commas(lst):
         return f"[{' | '.join(lst)}]"
