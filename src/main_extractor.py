@@ -8,7 +8,6 @@ from helper.jira_helper import JiraWorkItem
 from helper.constants import JiraJsonKeyConstants as JiraJsonKeyConst, FileFolderNameConstants as FileFolderNameConst, ConfigKeyConstants as ConfigKeyConst, GeneralConstants as GeneralConst, DateUtilConstants as DateUtilConst 
 import helper.jira_helper as jh
 import helper.file_helper as fh
-#import helper.flow_metrics_helper as fm_helper #UNCOMMENT ONLY WHEN DEPENDCY ISSUES ARE RESOLVED
 from  helper.utils.dateutil import DateUtil
 
 
@@ -66,7 +65,6 @@ def prepare_output_file_paths(script_path, selected_board_name):
     output_folder_path = fh.get_output_folder_path(script_path)
     file_names = {
         "fm_output": selected_board_name + FileFolderNameConst.FM_OUTPUT_FILE_POSTFIX.value + FileFolderNameConst.CSV_FILE_EXTENSION.value,
-        "adf_output": selected_board_name + FileFolderNameConst.ADF_OUTPUT_FILE_POSTFIX.value + FileFolderNameConst.CSV_FILE_EXTENSION.value,
         "merged_output": selected_board_name + FileFolderNameConst.MERGED_OUTPUT_FILE_POSTFIX.value + FileFolderNameConst.CSV_FILE_EXTENSION.value,
     }
     return {
@@ -107,7 +105,6 @@ def save_datasets(flow_metric_dataset: list, additional_field_dataset: list, fil
         file_paths (dict): A dictionary containing file paths for saving the datasets.
             Expected keys are:
                 - "fm_output": Path to save the flow metric dataset CSV.
-                - "adf_output": Path to save the additional field dataset CSV.
                 - "merged_output": Path to save the merged dataset CSV.
         jira_url (str): The base URL of the JIRA instance.
 
@@ -120,7 +117,6 @@ def save_datasets(flow_metric_dataset: list, additional_field_dataset: list, fil
     merged_df = pd.merge(flow_metric_dataframe, additional_field_dataframe, on=GeneralConst.ID_COLUMN_NAME.value, how='inner')
     merged_df = process_merged_dataframe(merged_df)
     flow_metric_dataframe.to_csv(file_paths["fm_output"], index=False)
-    #additional_field_dataframe.to_csv(file_paths["adf_output"], index=False)
     merged_df.to_csv(file_paths["merged_output"], index=False)
 
 def process_merged_dataframe(merged_df):
@@ -137,26 +133,6 @@ def process_merged_dataframe(merged_df):
         cols.insert(1, 'Link')
         merged_df = merged_df[cols]
     return merged_df
-
-def generate_date_file(flow_metric_dataframe: pd.DataFrame, output_folder_path: str, selected_board_name: str, output_date_format: str):
-    """
-    Generates a CSV file containing all dates from the earliest date in the given DataFrame to today.
-
-    Args:
-        flow_metric_dataframe (pd.DataFrame): DataFrame containing flow metrics with dates.
-        output_folder_path (str): Path to the folder where the output CSV file will be saved.
-        selected_board_name (str): Name of the selected board, used to name the output file.
-        output_date_format (str): Desired date format for the output dates.
-
-    Returns:
-        None
-    """
-    earliest_date = flow_metric_dataframe.iloc[:, 1].min()
-    obj_date_util = DateUtil(output_date_format)
-    all_dates_till_today = obj_date_util.get_all_date_till_today(earliest_date)
-    all_dates_dataframe = pd.DataFrame(all_dates_till_today)
-    date_output_csv_file_fullpath = fh.create_file_and_return_fullpath_with_name(output_folder_path, selected_board_name + "_dates.csv")
-    all_dates_dataframe.to_csv(date_output_csv_file_fullpath, index=False)
 
 def replace_commas_in_list_of_strings(df: pd.DataFrame, column_name: str) -> pd.DataFrame:
     """
@@ -212,10 +188,9 @@ def main(output_date_format: str):
         
         flow_metric_dataset, additional_field_dataset = process_jira_issues(all_jira_issues, obj_jira_data, output_date_format, dict_needed_jira_field_and_column_mapping)
         save_datasets(flow_metric_dataset, additional_field_dataset, file_paths, jira_url)
-        # generate_date_file(pd.DataFrame(flow_metric_dataset), fh.get_output_folder_path(script_path), selected_board_name, output_date_format)
 
         print(f"{len(all_jira_issues)} records prepared.")
-        print(f'Output Files: \n \t{file_paths["merged_output"]} \n \t{file_paths["fm_output"]} \n \t{file_paths["adf_output"]}')
+        print(f'Output Files: \n \t{file_paths["merged_output"]} \n \t{file_paths["fm_output"]}')
         print(f"Please check '{FileFolderNameConst.APP_LOG_FILENAME.value}' file for info on missing status mapping in the record, if any.")
 
     except Exception as e:
