@@ -51,7 +51,8 @@ def get_board_columns_and_jql(obj_board, jira_url, jira_token):
         excluded_issue_types = obj_board.get(JiraJsonKeyConst.JQL_EXCLUDE_ISSUE_TYPE.value, "")
         if excluded_issue_types:
             exclude_query = f" and issuetype not in ({excluded_issue_types})"
-        obj_board[JiraJsonKeyConst.JQL.value] = f"filter = {filter_id}{exclude_query}"
+        last_year_issue_only = " AND (created >= startOfDay(-365d) OR updated >= startOfDay(-365d) OR statusCategory != Done)"
+        obj_board[JiraJsonKeyConst.JQL.value] = f"filter = {filter_id}{exclude_query}{last_year_issue_only}"
         columns = cur_jira_board_config[GeneralConst.BOARD_COLUMNS.value]
         print_board_info(cur_jira_board_config, excluded_issue_types)
     return columns
@@ -81,6 +82,7 @@ def add_additional_fields_to_query(mapping):
         "labels": "Labels", 
         "customfield_10005": "Epic Link", 
         "customfield_11115": "Environment",
+        "customfield_10002": "Story Points",
         "components": "Components"
     }
     mapping.update(fields)
